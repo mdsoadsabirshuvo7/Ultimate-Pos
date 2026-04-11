@@ -1,0 +1,125 @@
+(function(){
+  if(!('serviceWorker' in navigator)) return;
+
+  var banner;
+
+  function ensureBanner(){
+    if(banner) return banner;
+    banner=document.createElement('div');
+    banner.id='s71-offline-banner';
+    banner.style.cssText='position:fixed;left:50%;top:10px;transform:translateX(-50%);padding:10px 14px;background:#b91c1c;color:#fff;z-index:99999;font-size:13px;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.2);display:none;';
+    banner.textContent='You are offline. Changes will be queued and synced automatically.';
+    document.body.appendChild(banner);
+    return banner;
+  }
+
+  function setBanner(isOffline){ ensureBanner().style.display=isOffline?'block':'none'; }
+
+  function notify(msg,type){
+    if(window.toastr){
+      if(type==='error') toastr.error(msg);
+      else if(type==='warning') toastr.warning(msg);
+      else toastr.success(msg);
+      return;
+    }
+    if(window.console && console.log) console.log('[offline-sync] '+msg);
+  }
+
+  function syncNow(){ if(navigator.serviceWorker.controller){ navigator.serviceWorker.controller.postMessage({type:'SYNC_NOW'}); } }
+
+  function registerSW(){
+    navigator.serviceWorker.register('/sw.js')
+      .then(function(){ return navigator.serviceWorker.ready; })
+      .then(function(){ syncNow(); })
+      .catch(function(err){ if(window.console && console.warn) console.warn('Service Worker registration failed:', err); });
+  }
+
+  function serializeForm(form){
+    var formData=new FormData(form);
+    var params=new URLSearchParams();
+    var hasFile=false;
+    formData.forEach(function(v,k){
+      if(v instanceof File){ if(v.name) hasFile=true; return; }
+      params.append(k,String(v));
+    });
+    return { body: params.toString(), hasFile: hasFile };
+  }
+
+  function bindOfflineForms(){
+    document.addEventListener('submit', function(event){
+      var form=event.target;
+      if(!(form instanceof HTMLFormElement)) return;
+      var method=(form.getAttribute('method')||'GET').toUpperCase();
+      if(method==='GET' || navigator.onLine) return;
+
+      var enctype=(form.getAttribute('enctype')||'').toLowerCase();
+      if(enctype.indexOf('multipart/form-data')!==-1){
+        notify('Offline queue does not support file uploads. Please reconnect to submit.', 'error');
+        return;
+      }
+      if(!navigator.serviceWorker.controller){
+        notify('Offline support is initializing. Refresh once while online to enable background sync.', 'warning');
+        return;
+      }
+
+      var payload=serializeForm(form);
+      if(payload.hasFile){
+        notify('Offline queue does not support file uploads. Please reconnect to submit.', 'error');
+        return;
+      }
+
+      event.preventDefault();
+
+      var headers={
+        'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8',
+        'X-Requested-With':'XMLHttpRequest'
+      };
+      var csrf=document.querySelector('meta[name="csrf-token"]');
+      if(csrf && csrf.content) headers['X-CSRF-TOKEN']=csrf.content;
+
+      fetch(form.action || window.location.href, {
+        method: method,
+        credentials: 'include',
+        headers: headers,
+        body: payload.body
+      }).then(function(resp){
+        if(resp.status===202) notify('Saved offline. It will sync automatically when internet returns.', 'success');
+        else notify('Request saved for sync.', 'success');
+      }).catch(function(){
+        notify('Saved offline. It will sync automatically when internet returns.', 'success');
+      });
+    }, true);
+  }
+
+  function bindLogoutClear(){
+    document.addEventListener('click', function(event){
+      var anchor=event.target && event.target.closest ? event.target.closest('a[href]') : null;
+      if(!anchor) return;
+      var href=anchor.getAttribute('href')||'';
+      if(href.indexOf('/logout')===-1) return;
+      if(navigator.serviceWorker.controller){
+        navigator.serviceWorker.controller.postMessage({type:'CLEAR_OFFLINE_DATA'});
+      }
+    });
+  }
+
+  function cleanQueuedFlag(){
+    var url=new URL(window.location.href);
+    if(url.searchParams.get('offline_sync')==='queued'){
+      notify('Action saved offline. It will sync automatically when internet returns.', 'success');
+      url.searchParams.delete('offline_sync');
+      window.history.replaceState({}, document.title, url.toString());
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    registerSW();
+    bindOfflineForms();
+    bindLogoutClear();
+    cleanQueuedFlag();
+    setBanner(!navigator.onLine);
+  });
+
+  window.addEventListener('online', function(){ setBanner(false); syncNow(); });
+  window.addEventListener('offline', function(){ setBanner(true); });
+})();

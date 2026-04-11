@@ -1,0 +1,62 @@
+const V='s71-sw-v1';
+const STATIC=`${V}-static`;
+const RUNTIME=`${V}-runtime`;
+const DB='s71-offline-db';
+const STORE='request-queue';
+const SYNC_TAG='s71-sync-queue';
+const PRECACHE=['/','/home','/offline.html','/manifest.json','/css/app.css','/css/vendor.css','/css/tailwind/app.css','/js/functions.js','/js/common.js','/js/app.js','/js/offline-sync.js'];
+
+self.addEventListener('install',e=>{e.waitUntil((async()=>{const c=await caches.open(STATIC);try{await c.addAll(PRECACHE.map(u=>new Request(u,{cache:'reload'})));}catch(_){ }await self.skipWaiting();})())});
+self.addEventListener('activate',e=>{e.waitUntil((async()=>{const keys=await caches.keys();await Promise.all(keys.filter(k=>!k.startsWith(V)).map(k=>caches.delete(k)));await self.clients.claim();})())});
+
+self.addEventListener('message',e=>{if(!e.data||!e.data.type)return;if(e.data.type==='SYNC_NOW')e.waitUntil(flushQueue());if(e.data.type==='CLEAR_OFFLINE_DATA')e.waitUntil(clearOfflineData());});
+self.addEventListener('sync',e=>{if(e.tag===SYNC_TAG)e.waitUntil(flushQueue());});
+
+self.addEventListener('fetch',e=>{
+  const req=e.request; const u=new URL(req.url);
+  if(u.origin!==self.location.origin)return;
+  if(req.method==='GET'){
+    if(req.mode==='navigate'){e.respondWith(handleNav(req));return;}
+    if(/\.(css|js|png|jpe?g|gif|svg|webp|woff2?|eot|ico)$/i.test(u.pathname)){e.respondWith(stale(req));return;}
+    e.respondWith(netFirst(req)); return;
+  }
+  if(['POST','PUT','PATCH','DELETE'].includes(req.method)){e.respondWith(mutation(req));}
+});
+
+function isLogin(resp){try{return new URL(resp.url).pathname==='/login';}catch(_){return false;}}
+
+async function handleNav(req){
+  try{const resp=await fetch(req);if(resp&&resp.status===200&&!isLogin(resp)){const c=await caches.open(RUNTIME);await c.put(req,resp.clone());}return resp;}
+  catch(_){const c=await caches.open(RUNTIME);return await c.match(req,{ignoreSearch:true})||await c.match('/home',{ignoreSearch:true})||await caches.match('/offline.html')||new Response('Offline',{status:503});}
+}
+
+async function netFirst(req){const c=await caches.open(RUNTIME);try{const resp=await fetch(req);if(resp&&resp.status===200)await c.put(req,resp.clone());return resp;}catch(err){const cached=await c.match(req,{ignoreSearch:true});if(cached)return cached;throw err;}}
+async function stale(req){const c=await caches.open(RUNTIME);const cached=await c.match(req,{ignoreSearch:true});const net=fetch(req).then(async r=>{if(r&&r.status===200)await c.put(req,r.clone());return r;}).catch(()=>null);return cached||net||new Response('',{status:504});}
+
+async function mutation(req){
+  try{return await fetch(req.clone());}
+  catch(_){const ok=await queueRequest(req);if(!ok)return new Response(JSON.stringify({queued:false,offline:true,message:'Offline queue not supported for this request type.'}),{status:503,headers:{'Content-Type':'application/json'}});await registerSync();if(req.mode==='navigate')return Response.redirect('/home?offline_sync=queued',303);return new Response(JSON.stringify({queued:true,offline:true,message:'Saved offline. It will sync automatically when internet returns.'}),{status:202,headers:{'Content-Type':'application/json'}});}
+}
+
+async function registerSync(){if(!self.registration)return;if('sync' in self.registration){try{await self.registration.sync.register(SYNC_TAG);return;}catch(_){ }}await flushQueue();}
+
+function openDb(){return new Promise((res,rej)=>{const r=indexedDB.open(DB,1);r.onupgradeneeded=()=>{const db=r.result;if(!db.objectStoreNames.contains(STORE))db.createObjectStore(STORE,{keyPath:'id',autoIncrement:true});};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
+
+async function serialize(req){
+  const h={}; req.headers.forEach((v,k)=>{h[k]=v;});
+  const m=req.method.toUpperCase();
+  const d={url:req.url,method:m,headers:h,body:'',createdAt:Date.now(),retries:0};
+  if(m==='GET'||m==='HEAD')return d;
+  const c=req.clone(); const ct=(h['content-type']||'').toLowerCase();
+  if(ct.includes('application/x-www-form-urlencoded')||ct.includes('application/json')||ct.includes('text/plain')){d.body=await c.text();return d;}
+  try{const fd=await c.formData();const p=new URLSearchParams();for(const [k,v] of fd.entries()){if(v instanceof File)return null;p.append(k,String(v));}d.body=p.toString();d.headers['content-type']='application/x-www-form-urlencoded;charset=UTF-8';return d;}catch(_){return null;}
+}
+
+async function queueRequest(req){const d=await serialize(req);if(!d)return false;const db=await openDb();await new Promise((res,rej)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).add(d);tx.oncomplete=res;tx.onerror=()=>rej(tx.error);});db.close();return true;}
+async function getAll(){const db=await openDb();const rows=await new Promise((res,rej)=>{const tx=db.transaction(STORE,'readonly');const r=tx.objectStore(STORE).getAll();r.onsuccess=()=>res(r.result||[]);r.onerror=()=>rej(r.error);});db.close();return rows;}
+async function del(id){const db=await openDb();await new Promise((res,rej)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).delete(id);tx.oncomplete=res;tx.onerror=()=>rej(tx.error);});db.close();}
+async function put(item){const db=await openDb();await new Promise((res,rej)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).put(item);tx.oncomplete=res;tx.onerror=()=>rej(tx.error);});db.close();}
+
+async function flushQueue(){const rows=await getAll();for(const item of rows){try{const resp=await fetch(item.url,{method:item.method,headers:item.headers,body:(item.method==='GET'||item.method==='HEAD')?undefined:item.body,credentials:'include'});if(resp&&resp.ok){await del(item.id);}else{item.retries=(item.retries||0)+1;if(item.retries>=5)await del(item.id);else await put(item);}}catch(_){item.retries=(item.retries||0)+1;if(item.retries>=5)await del(item.id);else await put(item);return;}}}
+
+async function clearOfflineData(){const keys=await caches.keys();await Promise.all(keys.filter(k=>k.includes('-runtime')).map(k=>caches.delete(k)));const db=await openDb();await new Promise((res,rej)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).clear();tx.oncomplete=res;tx.onerror=()=>rej(tx.error);});db.close();}

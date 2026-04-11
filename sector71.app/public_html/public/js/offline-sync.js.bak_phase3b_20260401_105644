@@ -1,0 +1,318 @@
+(function () {
+  if (!('serviceWorker' in navigator)) {
+    return;
+  }
+
+  var statusBanner = null;
+  var BASE_CRITICAL_ROUTES = [
+    '/home',
+    '/superadmin',
+    '/users',
+    '/roles',
+    '/products',
+    '/products/create',
+    '/contacts?type=customer',
+    '/contacts?type=supplier',
+    '/purchases',
+    '/purchases/create',
+    '/sells',
+    '/sells/create',
+    '/pos',
+    '/pos/create',
+    '/stock-adjustments',
+    '/stock-transfers',
+    '/expenses',
+    '/accounting/dashboard',
+    '/reports/profit-loss'
+  ];
+  var MAX_DYNAMIC_ROUTES = 160;
+
+  function ensureBanner() {
+    if (statusBanner) {
+      return statusBanner;
+    }
+
+    statusBanner = document.createElement('div');
+    statusBanner.id = 's71-offline-banner';
+    statusBanner.style.position = 'fixed';
+    statusBanner.style.left = '50%';
+    statusBanner.style.top = '10px';
+    statusBanner.style.transform = 'translateX(-50%)';
+    statusBanner.style.padding = '10px 14px';
+    statusBanner.style.background = '#b91c1c';
+    statusBanner.style.color = '#fff';
+    statusBanner.style.zIndex = '99999';
+    statusBanner.style.fontSize = '13px';
+    statusBanner.style.borderRadius = '8px';
+    statusBanner.style.boxShadow = '0 8px 24px rgba(0,0,0,.2)';
+    statusBanner.style.display = 'none';
+    statusBanner.textContent = 'You are offline. Changes will be queued and synced automatically.';
+
+    document.body.appendChild(statusBanner);
+    return statusBanner;
+  }
+
+  function setBannerVisibility(isOffline) {
+    var banner = ensureBanner();
+    banner.style.display = isOffline ? 'block' : 'none';
+  }
+
+  function notify(message, type) {
+    if (window.toastr) {
+      if (type === 'error') {
+        toastr.error(message);
+      } else if (type === 'warning') {
+        toastr.warning(message);
+      } else {
+        toastr.success(message);
+      }
+      return;
+    }
+
+    if (window.console && console.log) {
+      console.log('[offline-sync] ' + message);
+    }
+  }
+
+  function postToSW(message) {
+    if (navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage(message);
+    }
+  }
+
+  function requestSyncNow() {
+    postToSW({ type: 'SYNC_NOW' });
+  }
+
+  function normalizeRoute(href) {
+    if (!href) {
+      return null;
+    }
+
+    var trimmed = String(href).trim();
+    if (!trimmed || trimmed.charAt(0) === '#' || trimmed.indexOf('javascript:') === 0 || trimmed.indexOf('mailto:') === 0 || trimmed.indexOf('tel:') === 0) {
+      return null;
+    }
+
+    try {
+      var url = new URL(trimmed, window.location.origin);
+      if (url.origin !== window.location.origin) {
+        return null;
+      }
+
+      var pathname = url.pathname || '/';
+      if (pathname === '/logout') {
+        return null;
+      }
+
+      if (/\.(css|js|png|jpe?g|gif|svg|webp|woff2?|eot|ico|map)$/i.test(pathname)) {
+        return null;
+      }
+
+      return pathname + (url.search || '');
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function uniqueRoutes(list) {
+    var map = Object.create(null);
+    var out = [];
+
+    list.forEach(function (route) {
+      if (!route || map[route]) {
+        return;
+      }
+      map[route] = true;
+      out.push(route);
+    });
+
+    return out;
+  }
+
+  function collectSidebarRoutes() {
+    var anchors = document.querySelectorAll('#side-bar a[href], .side-bar a[href]');
+    var routes = [];
+
+    Array.prototype.forEach.call(anchors, function (anchor) {
+      var route = normalizeRoute(anchor.getAttribute('href'));
+      if (route) {
+        routes.push(route);
+      }
+    });
+
+    return uniqueRoutes(routes).slice(0, MAX_DYNAMIC_ROUTES);
+  }
+
+  function buildWarmRoutes() {
+    var routes = [];
+
+    routes = routes.concat(BASE_CRITICAL_ROUTES);
+    routes.push(window.location.pathname + window.location.search);
+    routes = routes.concat(collectSidebarRoutes());
+
+    return uniqueRoutes(routes);
+  }
+
+  function warmCriticalRoutes() {
+    postToSW({ type: 'WARM_CRITICAL_ROUTES', routes: buildWarmRoutes() });
+  }
+
+  function registerServiceWorker() {
+    navigator.serviceWorker.register('/sw.js')
+      .then(function () {
+        return navigator.serviceWorker.ready;
+      })
+      .then(function () {
+        requestSyncNow();
+        if (navigator.onLine) {
+          warmCriticalRoutes();
+        }
+      })
+      .catch(function (error) {
+        if (window.console && console.warn) {
+          console.warn('Service Worker registration failed:', error);
+        }
+      });
+  }
+
+  function serializeForm(form) {
+    var fd = new FormData(form);
+    var params = new URLSearchParams();
+    var hasFile = false;
+
+    fd.forEach(function (value, key) {
+      if (value instanceof File) {
+        if (value.name) {
+          hasFile = true;
+        }
+        return;
+      }
+      params.append(key, String(value));
+    });
+
+    return { body: params.toString(), hasFile: hasFile };
+  }
+
+  function bindOfflineFormQueue() {
+    document.addEventListener('submit', function (event) {
+      var form = event.target;
+      if (!(form instanceof HTMLFormElement)) {
+        return;
+      }
+
+      var method = (form.getAttribute('method') || 'GET').toUpperCase();
+      if (method === 'GET' || navigator.onLine) {
+        return;
+      }
+
+      var enctype = (form.getAttribute('enctype') || '').toLowerCase();
+      if (enctype.indexOf('multipart/form-data') !== -1) {
+        notify('Offline queue does not support file uploads. Please reconnect to submit.', 'error');
+        return;
+      }
+
+      if (!navigator.serviceWorker.controller) {
+        notify('Offline support is initializing. Refresh once while online to enable background sync.', 'warning');
+        return;
+      }
+
+      var serialized = serializeForm(form);
+      if (serialized.hasFile) {
+        notify('Offline queue does not support file uploads. Please reconnect to submit.', 'error');
+        return;
+      }
+
+      event.preventDefault();
+
+      var headers = {
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+        'X-Requested-With': 'XMLHttpRequest'
+      };
+
+      var csrf = document.querySelector('meta[name="csrf-token"]');
+      if (csrf && csrf.content) {
+        headers['X-CSRF-TOKEN'] = csrf.content;
+      }
+
+      fetch(form.action || window.location.href, {
+        method: method,
+        credentials: 'include',
+        headers: headers,
+        body: serialized.body
+      })
+        .then(function (response) {
+          if (response.status === 202) {
+            notify('Saved offline. It will sync automatically when internet returns.', 'success');
+          } else {
+            notify('Request saved for sync.', 'success');
+          }
+        })
+        .catch(function () {
+          notify('Saved offline. It will sync automatically when internet returns.', 'success');
+        });
+    }, true);
+  }
+
+  function bindLogoutCacheClear() {
+    document.addEventListener('click', function (event) {
+      var anchor = event.target && event.target.closest ? event.target.closest('a[href]') : null;
+      if (!anchor) {
+        return;
+      }
+      var href = anchor.getAttribute('href') || '';
+      if (href.indexOf('/logout') === -1) {
+        return;
+      }
+      postToSW({ type: 'CLEAR_OFFLINE_DATA' });
+    });
+  }
+
+  function bindRouteWarmOnClick() {
+    document.addEventListener('click', function (event) {
+      var anchor = event.target && event.target.closest ? event.target.closest('a[href]') : null;
+      if (!anchor) {
+        return;
+      }
+      var route = normalizeRoute(anchor.getAttribute('href'));
+      if (!route) {
+        return;
+      }
+      postToSW({ type: 'WARM_CRITICAL_ROUTES', routes: [route] });
+    });
+  }
+
+  function cleanupQueuedFlagFromUrl() {
+    var u = new URL(window.location.href);
+    if (u.searchParams.get('offline_sync') === 'queued') {
+      notify('Action saved offline. It will sync automatically when internet returns.', 'success');
+      u.searchParams.delete('offline_sync');
+      window.history.replaceState({}, document.title, u.toString());
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    registerServiceWorker();
+    bindOfflineFormQueue();
+    bindLogoutCacheClear();
+    bindRouteWarmOnClick();
+    cleanupQueuedFlagFromUrl();
+    setBannerVisibility(!navigator.onLine);
+  });
+
+  window.addEventListener('online', function () {
+    setBannerVisibility(false);
+    requestSyncNow();
+    warmCriticalRoutes();
+  });
+
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden && navigator.onLine) {
+      warmCriticalRoutes();
+    }
+  });
+
+  window.addEventListener('offline', function () {
+    setBannerVisibility(true);
+  });
+})();

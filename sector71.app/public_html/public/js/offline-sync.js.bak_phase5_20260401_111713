@@ -1,0 +1,505 @@
+(function () {
+  if (!('serviceWorker' in navigator)) {
+    return;
+  }
+
+  var statusBanner = null;
+  var syncWidget = null;
+  var BASE_CRITICAL_ROUTES = [
+    '/home',
+    '/superadmin',
+    '/users',
+    '/roles',
+    '/products',
+    '/products/create',
+    '/contacts?type=customer',
+    '/contacts?type=supplier',
+    '/purchases',
+    '/purchases/create',
+    '/sells',
+    '/sells/create',
+    '/pos',
+    '/pos/create',
+    '/stock-adjustments',
+    '/stock-transfers',
+    '/expenses',
+    '/accounting/dashboard',
+    '/reports/profit-loss'
+  ];
+  var MAX_DYNAMIC_ROUTES = 160;
+  var DB_NAME = 's71-offline-db';
+  var STORE_NAME = 'request-queue';
+
+  var syncState = {
+    pending: 0,
+    isSyncing: false,
+    lastSyncAt: 0
+  };
+
+  function ensureBanner() {
+    if (statusBanner) {
+      return statusBanner;
+    }
+
+    statusBanner = document.createElement('div');
+    statusBanner.id = 's71-offline-banner';
+    statusBanner.style.position = 'fixed';
+    statusBanner.style.left = '50%';
+    statusBanner.style.top = '10px';
+    statusBanner.style.transform = 'translateX(-50%)';
+    statusBanner.style.padding = '10px 14px';
+    statusBanner.style.background = '#b91c1c';
+    statusBanner.style.color = '#fff';
+    statusBanner.style.zIndex = '99999';
+    statusBanner.style.fontSize = '13px';
+    statusBanner.style.borderRadius = '8px';
+    statusBanner.style.boxShadow = '0 8px 24px rgba(0,0,0,.2)';
+    statusBanner.style.display = 'none';
+    statusBanner.textContent = 'You are offline. Changes will be queued and synced automatically.';
+
+    document.body.appendChild(statusBanner);
+    return statusBanner;
+  }
+
+  function ensureSyncWidget() {
+    if (syncWidget) {
+      return syncWidget;
+    }
+
+    syncWidget = document.createElement('div');
+    syncWidget.id = 's71-sync-widget';
+    syncWidget.style.position = 'fixed';
+    syncWidget.style.right = '14px';
+    syncWidget.style.bottom = '14px';
+    syncWidget.style.zIndex = '99998';
+    syncWidget.style.minWidth = '180px';
+    syncWidget.style.padding = '10px 12px';
+    syncWidget.style.borderRadius = '10px';
+    syncWidget.style.fontSize = '12px';
+    syncWidget.style.lineHeight = '1.35';
+    syncWidget.style.boxShadow = '0 8px 22px rgba(0,0,0,.16)';
+    syncWidget.style.color = '#fff';
+    syncWidget.style.userSelect = 'none';
+    syncWidget.style.display = 'block';
+    syncWidget.setAttribute('aria-live', 'polite');
+
+    document.body.appendChild(syncWidget);
+    return syncWidget;
+  }
+
+  function formatTime(ts) {
+    if (!ts) {
+      return '--';
+    }
+
+    try {
+      return new Date(ts).toLocaleTimeString();
+    } catch (_) {
+      return '--';
+    }
+  }
+
+  function renderSyncWidget() {
+    var widget = ensureSyncWidget();
+    var bg = '#065f46';
+    var status = 'Synced';
+
+    if (!navigator.onLine) {
+      bg = '#b91c1c';
+      status = 'Offline';
+    } else if (syncState.isSyncing) {
+      bg = '#1d4ed8';
+      status = 'Syncing';
+    } else if (syncState.pending > 0) {
+      bg = '#b45309';
+      status = 'Queued';
+    }
+
+    widget.style.background = bg;
+    widget.innerHTML =
+      '<div style="font-weight:700; margin-bottom:4px;">' + status + '</div>' +
+      '<div>Queued: ' + String(syncState.pending) + '</div>' +
+      '<div>Last sync: ' + formatTime(syncState.lastSyncAt) + '</div>';
+  }
+
+  function setBannerVisibility(isOffline) {
+    var banner = ensureBanner();
+    banner.style.display = isOffline ? 'block' : 'none';
+  }
+
+  function notify(message, type) {
+    if (window.toastr) {
+      if (type === 'error') {
+        toastr.error(message);
+      } else if (type === 'warning') {
+        toastr.warning(message);
+      } else {
+        toastr.success(message);
+      }
+      return;
+    }
+
+    if (window.console && console.log) {
+      console.log('[offline-sync] ' + message);
+    }
+  }
+
+  function postToSW(message) {
+    if (navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage(message);
+      return;
+    }
+
+    navigator.serviceWorker.ready
+      .then(function (registration) {
+        if (registration && registration.active) {
+          registration.active.postMessage(message);
+        }
+      })
+      .catch(function () {
+        // Ignore transient readiness errors.
+      });
+  }
+
+  function requestSyncNow() {
+    syncState.isSyncing = true;
+    renderSyncWidget();
+    postToSW({ type: 'SYNC_NOW' });
+    setTimeout(function () {
+      refreshQueueState(false);
+    }, 2500);
+  }
+
+  function openQueueDb() {
+    return new Promise(function (resolve, reject) {
+      var req = indexedDB.open(DB_NAME, 1);
+
+      req.onupgradeneeded = function () {
+        var db = req.result;
+        if (!db.objectStoreNames.contains(STORE_NAME)) {
+          db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+        }
+      };
+
+      req.onsuccess = function () {
+        resolve(req.result);
+      };
+
+      req.onerror = function () {
+        reject(req.error);
+      };
+    });
+  }
+
+  function getQueueCount() {
+    return openQueueDb()
+      .then(function (db) {
+        return new Promise(function (resolve, reject) {
+          var tx = db.transaction(STORE_NAME, 'readonly');
+          var req = tx.objectStore(STORE_NAME).count();
+
+          req.onsuccess = function () {
+            resolve(req.result || 0);
+            db.close();
+          };
+
+          req.onerror = function () {
+            reject(req.error);
+            db.close();
+          };
+        });
+      })
+      .catch(function () {
+        return 0;
+      });
+  }
+
+  function refreshQueueState(markSyncing) {
+    if (markSyncing) {
+      syncState.isSyncing = true;
+      renderSyncWidget();
+    }
+
+    return getQueueCount().then(function (count) {
+      var previous = syncState.pending;
+      syncState.pending = count;
+
+      if (syncState.isSyncing && count === 0 && navigator.onLine) {
+        syncState.isSyncing = false;
+        syncState.lastSyncAt = Date.now();
+      }
+
+      if (previous > 0 && count === 0 && navigator.onLine) {
+        syncState.lastSyncAt = Date.now();
+        syncState.isSyncing = false;
+      }
+
+      if (!navigator.onLine) {
+        syncState.isSyncing = false;
+      }
+
+      renderSyncWidget();
+      return count;
+    });
+  }
+
+  function normalizeRoute(href) {
+    if (!href) {
+      return null;
+    }
+
+    var trimmed = String(href).trim();
+    if (!trimmed || trimmed.charAt(0) === '#' || trimmed.indexOf('javascript:') === 0 || trimmed.indexOf('mailto:') === 0 || trimmed.indexOf('tel:') === 0) {
+      return null;
+    }
+
+    try {
+      var url = new URL(trimmed, window.location.origin);
+      if (url.origin !== window.location.origin) {
+        return null;
+      }
+
+      var pathname = url.pathname || '/';
+      if (pathname === '/logout') {
+        return null;
+      }
+
+      if (/\.(css|js|png|jpe?g|gif|svg|webp|woff2?|eot|ico|map)$/i.test(pathname)) {
+        return null;
+      }
+
+      return pathname + (url.search || '');
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function uniqueRoutes(list) {
+    var map = Object.create(null);
+    var out = [];
+
+    list.forEach(function (route) {
+      if (!route || map[route]) {
+        return;
+      }
+      map[route] = true;
+      out.push(route);
+    });
+
+    return out;
+  }
+
+  function collectSidebarRoutes() {
+    var anchors = document.querySelectorAll('#side-bar a[href], .side-bar a[href]');
+    var routes = [];
+
+    Array.prototype.forEach.call(anchors, function (anchor) {
+      var route = normalizeRoute(anchor.getAttribute('href'));
+      if (route) {
+        routes.push(route);
+      }
+    });
+
+    return uniqueRoutes(routes).slice(0, MAX_DYNAMIC_ROUTES);
+  }
+
+  function buildWarmRoutes() {
+    var routes = [];
+
+    routes = routes.concat(BASE_CRITICAL_ROUTES);
+    routes.push(window.location.pathname + window.location.search);
+    routes = routes.concat(collectSidebarRoutes());
+
+    return uniqueRoutes(routes);
+  }
+
+  function warmCriticalRoutes() {
+    postToSW({ type: 'WARM_CRITICAL_ROUTES', routes: buildWarmRoutes() });
+  }
+
+  function registerServiceWorker() {
+    navigator.serviceWorker.register('/sw.js')
+      .then(function () {
+        return navigator.serviceWorker.ready;
+      })
+      .then(function () {
+        requestSyncNow();
+        if (navigator.onLine) {
+          warmCriticalRoutes();
+        }
+        refreshQueueState(false);
+      })
+      .catch(function (error) {
+        if (window.console && console.warn) {
+          console.warn('Service Worker registration failed:', error);
+        }
+      });
+  }
+
+  function serializeForm(form) {
+    var fd = new FormData(form);
+    var params = new URLSearchParams();
+    var hasFile = false;
+
+    fd.forEach(function (value, key) {
+      if (value instanceof File) {
+        if (value.name) {
+          hasFile = true;
+        }
+        return;
+      }
+      params.append(key, String(value));
+    });
+
+    return { body: params.toString(), hasFile: hasFile };
+  }
+
+  function bindOfflineFormQueue() {
+    document.addEventListener('submit', function (event) {
+      var form = event.target;
+      if (!(form instanceof HTMLFormElement)) {
+        return;
+      }
+
+      var method = (form.getAttribute('method') || 'GET').toUpperCase();
+      if (method === 'GET' || navigator.onLine) {
+        return;
+      }
+
+      var enctype = (form.getAttribute('enctype') || '').toLowerCase();
+      if (enctype.indexOf('multipart/form-data') !== -1) {
+        notify('Offline queue does not support file uploads. Please reconnect to submit.', 'error');
+        return;
+      }
+
+      if (!navigator.serviceWorker.controller) {
+        notify('Offline support is initializing. Refresh once while online to enable background sync.', 'warning');
+        return;
+      }
+
+      var serialized = serializeForm(form);
+      if (serialized.hasFile) {
+        notify('Offline queue does not support file uploads. Please reconnect to submit.', 'error');
+        return;
+      }
+
+      event.preventDefault();
+
+      var headers = {
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+        'X-Requested-With': 'XMLHttpRequest'
+      };
+
+      var csrf = document.querySelector('meta[name="csrf-token"]');
+      if (csrf && csrf.content) {
+        headers['X-CSRF-TOKEN'] = csrf.content;
+      }
+
+      fetch(form.action || window.location.href, {
+        method: method,
+        credentials: 'include',
+        headers: headers,
+        body: serialized.body
+      })
+        .then(function (response) {
+          if (response.status === 202) {
+            notify('Saved offline. It will sync automatically when internet returns.', 'success');
+            setTimeout(function () {
+              refreshQueueState(false);
+            }, 500);
+          } else {
+            notify('Request saved for sync.', 'success');
+            setTimeout(function () {
+              refreshQueueState(false);
+            }, 500);
+          }
+        })
+        .catch(function () {
+          notify('Saved offline. It will sync automatically when internet returns.', 'success');
+          setTimeout(function () {
+            refreshQueueState(false);
+          }, 500);
+        });
+    }, true);
+  }
+
+  function bindLogoutCacheClear() {
+    document.addEventListener('click', function (event) {
+      var anchor = event.target && event.target.closest ? event.target.closest('a[href]') : null;
+      if (!anchor) {
+        return;
+      }
+      var href = anchor.getAttribute('href') || '';
+      if (href.indexOf('/logout') === -1) {
+        return;
+      }
+      postToSW({ type: 'CLEAR_OFFLINE_DATA' });
+    });
+  }
+
+  function bindRouteWarmOnClick() {
+    document.addEventListener('click', function (event) {
+      var anchor = event.target && event.target.closest ? event.target.closest('a[href]') : null;
+      if (!anchor) {
+        return;
+      }
+      var route = normalizeRoute(anchor.getAttribute('href'));
+      if (!route) {
+        return;
+      }
+      postToSW({ type: 'WARM_CRITICAL_ROUTES', routes: [route] });
+    });
+  }
+
+  function cleanupQueuedFlagFromUrl() {
+    var u = new URL(window.location.href);
+    if (u.searchParams.get('offline_sync') === 'queued') {
+      notify('Action saved offline. It will sync automatically when internet returns.', 'success');
+      u.searchParams.delete('offline_sync');
+      window.history.replaceState({}, document.title, u.toString());
+    }
+  }
+
+  function startQueuePolling() {
+    refreshQueueState(false);
+    setInterval(function () {
+      refreshQueueState(false);
+    }, 15000);
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    ensureSyncWidget();
+    renderSyncWidget();
+    registerServiceWorker();
+    bindOfflineFormQueue();
+    bindLogoutCacheClear();
+    bindRouteWarmOnClick();
+    cleanupQueuedFlagFromUrl();
+    startQueuePolling();
+    setBannerVisibility(!navigator.onLine);
+    renderSyncWidget();
+  });
+
+  window.addEventListener('online', function () {
+    setBannerVisibility(false);
+    requestSyncNow();
+    warmCriticalRoutes();
+    setTimeout(function () {
+      refreshQueueState(false);
+    }, 3500);
+    renderSyncWidget();
+  });
+
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden && navigator.onLine) {
+      warmCriticalRoutes();
+      refreshQueueState(false);
+    }
+  });
+
+  window.addEventListener('offline', function () {
+    setBannerVisibility(true);
+    syncState.isSyncing = false;
+    renderSyncWidget();
+  });
+})();

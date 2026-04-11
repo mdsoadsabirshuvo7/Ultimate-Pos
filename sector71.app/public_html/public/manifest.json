@@ -1,0 +1,17 @@
+{
+  "name": "Sector71 Softwares",
+  "short_name": "Sector71",
+  "start_url": "/home",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1d4ed8",
+  "description": "Offline-ready Sector71 app with automatic sync.",
+  "icons": [
+    {
+      "src": "/img/logo-small.png",
+      "sizes": "64x64",
+      "type": "image/png"
+    }
+  ]
+}
