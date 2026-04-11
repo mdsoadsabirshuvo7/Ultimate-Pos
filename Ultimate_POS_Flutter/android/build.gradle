@@ -1,0 +1,65 @@
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+
+    configurations.all {
+        exclude group: 'com.android.support'
+    }
+}
+
+ext {
+    compileSdkVersion = 34
+    targetSdkVersion = 34
+    minSdkVersion = 21
+}
+
+subprojects { subproject ->
+    subproject.tasks.withType(JavaCompile).configureEach {
+        options.compilerArgs.removeAll(['-Werror'])
+        if (!options.compilerArgs.contains('-Xlint:-options')) {
+            options.compilerArgs.add('-Xlint:-options')
+        }
+    }
+
+    subproject.plugins.withId('com.android.library') {
+        def androidExt = subproject.extensions.findByName('android')
+        if (androidExt != null) {
+            def currentNamespace = androidExt.hasProperty('namespace') ? androidExt.namespace : null
+            if (currentNamespace == null || currentNamespace.toString().trim().isEmpty()) {
+                androidExt.namespace = "auto.namespace.${subproject.name.replace('-', '_')}"
+            }
+            androidExt.compileOptions {
+                sourceCompatibility JavaVersion.VERSION_11
+                targetCompatibility JavaVersion.VERSION_11
+            }
+        }
+    }
+
+    subproject.plugins.withId('org.jetbrains.kotlin.android') {
+        subproject.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+            kotlinOptions {
+                if (subproject.name == 'barcode_scan2' || subproject.name == 'flutter_html_to_pdf') {
+                    jvmTarget = '1.8'
+                } else if (subproject.name == 'app' || subproject.name == 'app_settings') {
+                    jvmTarget = '11'
+                } else {
+                    jvmTarget = '17'
+                }
+            }
+        }
+    }
+}
+
+rootProject.buildDir = '../build'
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+subprojects {
+    project.evaluationDependsOn(':app')
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.layout.buildDirectory
+}
