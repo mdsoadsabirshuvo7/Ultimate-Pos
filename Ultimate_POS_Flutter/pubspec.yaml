@@ -77,6 +77,8 @@ dev_dependencies:
   flutter_launcher_icons: any
 
 dependency_overrides:
+  flutter_html_to_pdf:
+    path: local_plugins/flutter_html_to_pdf
   archive: ^4.0.9
   flutter_plugin_android_lifecycle: ^2.0.34
 

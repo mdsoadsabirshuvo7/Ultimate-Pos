@@ -305,10 +305,9 @@ packages:
   flutter_html_to_pdf:
     dependency: "direct main"
     description:
-      name: flutter_html_to_pdf
-      sha256: "4bec44685f62a404bac7c9e412da0fbcd389ea5eceb397c268d829ecfa148c34"
-      url: "https://pub.dev"
-    source: hosted
+      path: "local_plugins/flutter_html_to_pdf"
+      relative: true
+    source: path
     version: "0.7.0"
   flutter_launcher_icons:
     dependency: "direct dev"

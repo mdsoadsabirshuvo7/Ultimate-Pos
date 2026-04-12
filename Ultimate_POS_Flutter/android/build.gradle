@@ -26,6 +26,18 @@ subprojects { subproject ->
     subproject.plugins.withId('com.android.library') {
         def androidExt = subproject.extensions.findByName('android')
         if (androidExt != null) {
+            if (androidExt.hasProperty('compileSdk')) {
+                androidExt.compileSdk = rootProject.ext.compileSdkVersion
+            } else {
+                androidExt.compileSdkVersion rootProject.ext.compileSdkVersion
+            }
+            if (androidExt.defaultConfig != null) {
+                if (androidExt.defaultConfig.hasProperty('minSdk')) {
+                    androidExt.defaultConfig.minSdk = rootProject.ext.minSdkVersion
+                } else {
+                    androidExt.defaultConfig.minSdkVersion rootProject.ext.minSdkVersion
+                }
+            }
             def currentNamespace = androidExt.hasProperty('namespace') ? androidExt.namespace : null
             if (currentNamespace == null || currentNamespace.toString().trim().isEmpty()) {
                 androidExt.namespace = "auto.namespace.${subproject.name.replace('-', '_')}"

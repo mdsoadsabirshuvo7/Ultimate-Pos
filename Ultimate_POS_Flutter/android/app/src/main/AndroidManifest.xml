@@ -15,7 +15,7 @@
 
     <application
         android:name="${applicationName}"
-        android:label="PNN POS"
+        android:label="sector71 POS"
         android:icon="@mipmap/ic_launcher">
 
         <!-- Place your Google Map API KEY here at value -->
