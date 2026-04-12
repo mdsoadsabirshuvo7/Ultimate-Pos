@@ -2,6 +2,7 @@
 
 namespace Modules\Cms\Http\Controllers;
 
+use App\System;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
@@ -144,7 +145,10 @@ class CmsController extends Controller
 
     public function termsAndConditions()
     {
-        return view('cms::frontend.pages.terms_and_conditions');
+        $system_settings = System::getProperties(['superadmin_enable_register_tc', 'superadmin_register_tc'], true);
+
+        return view('cms::frontend.pages.terms_and_conditions')
+            ->with(compact('system_settings'));
     }
 
     public function postContactForm(Request $request)
