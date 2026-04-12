@@ -525,7 +525,8 @@
             <div class="s71-local reveal mt-4">
                 <p class="mb-2">Sector 71 Softwares | +8801336313953 (WhatsApp)</p>
                 <p class="mb-2">sector71.owner@gmail.com</p>
-                <p class="mb-0">https://sector71.app | https://sector71.codes</p>
+                <p class="mb-2">https://sector71.app | https://sector71.codes</p>
+                <p class="mb-0"><a href="{{ url('/terms-and-conditions') }}" class="text-white text-decoration-none fw-semibold">T&amp;C</a></p>
             </div>
         </div>
     </section>

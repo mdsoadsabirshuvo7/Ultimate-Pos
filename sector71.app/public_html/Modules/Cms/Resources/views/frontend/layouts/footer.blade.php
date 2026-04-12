@@ -77,11 +77,12 @@
                     <i class="fab fa-whatsapp me-1"></i> Sector71 Softwares +8801336313953 WhatsApp
                 </a>
                 <a href="mailto:sector71.owner@gmail.com" class="block-44__link d-block mt-1">sector71.owner@gmail.com</a>
+                <a href="{{ url('/terms-and-conditions') }}" class="block-44__link d-block mt-1">T&amp;C</a>
             </div>
             <p class="block-41__copyrights col col-md-8 text-xxl-end text-xl-end text-lg-end text-md-end text-sm-center">
                 &copy; &nbsp;{{ date('Y')}} &nbsp;{{config('app.name', 'ultimatePOS')}}. &nbsp;All Rights Reserved.
                 <span class="mx-1">|</span>
-                <a href="{{ route('cms.terms') }}" class="block-44__link text-decoration-none">Terms &amp; Conditions</a>
+                <a href="{{ url('/terms-and-conditions') }}" class="block-44__link text-decoration-none">Terms &amp; Conditions</a>
             </p>
         </div>
     </div>

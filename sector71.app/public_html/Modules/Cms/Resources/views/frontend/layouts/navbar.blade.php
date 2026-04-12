@@ -84,6 +84,9 @@
                                 </li>
                             @endif
                             <li class="hero-nav__item">
+                                <a href="{{ url('/terms-and-conditions') }}" class="hero-nav__link">T&amp;C</a>
+                            </li>
+                            <li class="hero-nav__item">
                                 <a href="{{route('cms.contact.us')}}" class="hero-nav__link">Contact us</a>
                             </li>
                             @if(Route::has('pricing') && config('app.env') != 'demo')
