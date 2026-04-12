@@ -142,6 +142,11 @@ class CmsController extends Controller
             ->with(compact('page'));
     }
 
+    public function termsAndConditions()
+    {
+        return view('cms::frontend.pages.terms_and_conditions');
+    }
+
     public function postContactForm(Request $request)
     {
         //check if app is in demo & disable action

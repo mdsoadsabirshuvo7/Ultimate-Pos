@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 Route::get('/', [Modules\Cms\Http\Controllers\CmsController::class, 'index']);
+Route::get('terms-and-conditions', [Modules\Cms\Http\Controllers\CmsController::class, 'termsAndConditions'])->name('cms.terms');
 Route::get('c/page/{page}', [Modules\Cms\Http\Controllers\CmsPageController::class, 'showPage']);
 Route::get('c/blogs', [Modules\Cms\Http\Controllers\CmsController::class, 'getBlogList']);
 Route::get('c/blog/{slug}-{id}', [Modules\Cms\Http\Controllers\CmsController::class, 'viewBlog']);
