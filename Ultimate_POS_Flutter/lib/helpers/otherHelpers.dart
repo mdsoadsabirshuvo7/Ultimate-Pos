@@ -202,7 +202,7 @@ class Helper {
 
   //job scheduler
   jobScheduler() {
-    if (Config().syncCallLog) {
+    if (Config.syncCallLog) {
       final cron = Cron();
       cron.schedule(Schedule.parse('*/${Config.callLogSyncDuration} * * * *'),
           () async {
@@ -214,7 +214,7 @@ class Helper {
   //post call_logs in api
   syncCallLogs() async {
     if (await Permission.phone.status == PermissionStatus.granted) {
-      if (Config().syncCallLog && await Helper().checkConnectivity()) {
+      if (Config.syncCallLog && await Helper().checkConnectivity()) {
         // ignore: unused_local_variable
         List recentLogs = [];
         //get last sync time

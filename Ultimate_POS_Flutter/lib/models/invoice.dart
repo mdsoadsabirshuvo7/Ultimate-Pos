@@ -102,32 +102,35 @@ class InvoiceFormatter {
   }
 
   Map<String, dynamic> getTotalAmount(
-      {required String discountType,
-      required double discountAmount,
+      {String? discountType,
+      double? discountAmount,
       required String symbol}) {
     Map<String, dynamic> allAmounts = {};
-    if (discountType == "fixed") {
-      discountType = "$symbol $discountAmount";
-      String tAmount = (subTotal - discountAmount).toString();
-      allAmounts['taxAmount'] = Helper().formatCurrency(
-          (double.parse(tAmount) * (tax / 100)).toStringAsFixed(2));
-      allAmounts['totalAmount'] =
-          (double.parse(tAmount) + double.parse(allAmounts['taxAmount']))
-              .toString();
-      allAmounts['discountAmount'] = discountAmount;
-      allAmounts['discountType'] = discountType;
-    } else if (discountType == "percentage") {
-      discountType = discountAmount.toString() + " %";
-      discountAmount = subTotal * (discountAmount / 100);
-      String tAmount = (subTotal - discountAmount).toString();
-      allAmounts['taxAmount'] = Helper().formatCurrency(
-          (double.parse(tAmount) * (tax / 100)).toStringAsFixed(2));
-      allAmounts['totalAmount'] =
-          (double.parse(tAmount) + double.parse(allAmounts['taxAmount']))
-              .toStringAsFixed(2);
-      allAmounts['discountAmount'] = discountAmount;
-      allAmounts['discountType'] = discountType;
+    double dAmount = discountAmount ?? 0.0;
+    String dTypeStr = discountType ?? "";
+    
+    double tAmount = subTotal;
+    
+    if (dTypeStr == "fixed") {
+      dTypeStr = "$symbol $dAmount";
+      tAmount = subTotal - dAmount;
+    } else if (dTypeStr == "percentage") {
+      dTypeStr = "$dAmount %";
+      dAmount = subTotal * (dAmount / 100);
+      tAmount = subTotal - dAmount;
+    } else {
+      dTypeStr = "";
+      dAmount = 0.0;
     }
+
+    double taxValue = tAmount * (tax / 100);
+    double totalVal = tAmount + taxValue;
+
+    allAmounts['taxAmount'] = taxValue.toStringAsFixed(2);
+    allAmounts['totalAmount'] = totalVal.toStringAsFixed(2);
+    allAmounts['discountAmount'] = dAmount;
+    allAmounts['discountType'] = dTypeStr;
+    
     return allAmounts;
   }
 
@@ -220,8 +223,8 @@ class InvoiceFormatter {
     });
 
     Map<String, dynamic> getAmounts = getTotalAmount(
-        discountType: discountType,
-        discountAmount: discountAmount,
+        discountType: discountType?.toString(),
+        discountAmount: double.tryParse(discountAmount?.toString() ?? '0.0'),
         symbol: symbol);
 
     discountAmount = getAmounts['discountAmount'];
@@ -245,20 +248,21 @@ class InvoiceFormatter {
       dueAmount = 0.00;
       returnAmount = 0.00;
     }
-    returnAmount = Helper().formatCurrency(returnAmount);
-    totalAmount = Helper().formatCurrency(totalAmount);
-    totalReceived = Helper().formatCurrency(totalPaidAmount);
+    
+    String strReturnAmount = Helper().formatCurrency(returnAmount);
+    String strTotalAmount = Helper().formatCurrency(totalAmount);
+    String strTotalReceived = Helper().formatCurrency(totalPaidAmount);
 
     //structure of discount row
     if (discountAmount > 0) {
-      discountAmount = Helper().formatCurrency(discountAmount);
+      String strDiscountAmount = Helper().formatCurrency(discountAmount);
       discountHtml = '''
       <div class="flex-box">
          <p class="width-50 text-left">
             ${AppLocalizations.of(context).translate('discount')} <small>($discountType)</small> :
          </p>
          <p class="width-50 text-right">
-            (-) $symbol $discountAmount
+            (-) $symbol $strDiscountAmount
          </p>
       </div>
       ''';
@@ -295,13 +299,14 @@ class InvoiceFormatter {
 
     //structure of tax row
     if (taxName != "taxRates") {
+      String strTaxAmount = Helper().formatCurrency(taxAmount);
       taxHtml = '''
       <div class="flex-box">
          <p class="width-50 text-left">
             ${AppLocalizations.of(context).translate('tax')} ($taxName):
          </p>
          <p class="width-50 text-right">
-            (+) $symbol $taxAmount
+            (+) $symbol $strTaxAmount
          </p>
       </div>
       ''';
@@ -436,7 +441,7 @@ class InvoiceFormatter {
             <strong>${AppLocalizations.of(context).translate('total')}:</strong>
          </p>
          <p class="width-50 text-right">
-            <strong>$symbol $totalAmount</strong>
+            <strong>$symbol $strTotalAmount</strong>
          </p>
       </div>
       <!-- Payments -->
@@ -447,7 +452,7 @@ class InvoiceFormatter {
             ${AppLocalizations.of(context).translate('total')} ${AppLocalizations.of(context).translate('paid')}
          </p>
          <p class="width-50 text-right">
-            $symbol $totalReceived
+            $symbol $strTotalReceived
          </p>
       </div>
       <!-- Total Due-->

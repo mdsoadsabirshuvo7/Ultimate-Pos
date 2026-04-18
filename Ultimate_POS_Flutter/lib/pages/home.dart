@@ -1,4 +1,4 @@
-import 'package:app_settings/app_settings.dart';
+﻿import 'package:app_settings/app_settings.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 // import 'package:call_log/call_log.dart';
@@ -18,13 +18,18 @@ import '../helpers/SizeConfig.dart';
 import '../helpers/otherHelpers.dart';
 import '../locale/MyLocalizations.dart';
 import '../models/attendance.dart';
+import '../helpers/auto_sync.dart';
+import 'daily_dashboard.dart';
 import '../models/paymentDatabase.dart';
 import '../models/sell.dart';
 import '../models/sellDatabase.dart';
 import '../models/system.dart';
 import '../models/variations.dart';
 import '../pages/login.dart';
+import '../pages/baki_khata.dart';
 import 'elements.dart';
+import 'pc_scanner_pairing.dart';
+import 'medicine_pc_scanner_pairing.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -77,6 +82,9 @@ class _HomeState extends State<Home> {
     getPermission();
     homepageData();
     Helper().syncCallLogs();
+    
+    // Auto-sync offline sales when connectivity is restored
+    AutoSyncManager().initialize();
   }
 
   //function to set homepage details
@@ -94,6 +102,7 @@ class _HomeState extends State<Home> {
       Config.quantityPrecision = value['quantityPrecision'] ?? 2;
       Config.currencyPrecision = value['currencyPrecision'] ?? 2;
     });
+    await System().applyWebsiteFeatureSettings();
     selectedLanguage =
         prefs.getString('language_code') ?? Config().defaultLanguage;
     setState(() {});
@@ -132,6 +141,9 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    themeData = Theme.of(context);
+    customAppTheme = AppTheme.getCustomAppTheme(themeType);
+
     return Scaffold(
         drawer: homePageDrawer(),
         appBar: AppBar(
@@ -179,22 +191,97 @@ class _HomeState extends State<Home> {
           ],
         ),
         body: SingleChildScrollView(
+          padding: EdgeInsets.all(MySize.size16!),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              Card(
+              Container(
+                margin: EdgeInsets.only(bottom: MySize.size8!),
                 child: Container(
-                  padding: EdgeInsets.all(MySize.size10!),
-                  child: Text(
-                      AppLocalizations.of(context).translate('welcome') +
-                          ' $userName',
-                      style: AppTheme.getTextStyle(
-                          themeData.textTheme.titleMedium,
-                          fontWeight: 700,
-                          letterSpacing: -0.2)),
+                  padding: EdgeInsets.all(MySize.size16!),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(MySize.size12!),
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        themeData.colorScheme.primary,
+                        themeData.colorScheme.primaryContainer,
+                      ],
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context).translate('welcome'),
+                        style: AppTheme.getTextStyle(
+                            themeData.textTheme.titleMedium,
+                            color: themeData.colorScheme.onPrimary,
+                            fontWeight: 600),
+                      ),
+                      SizedBox(height: MySize.size4),
+                      Text(
+                        userName,
+                        style: AppTheme.getTextStyle(
+                            themeData.textTheme.headlineSmall,
+                            color: themeData.colorScheme.onPrimary,
+                            fontWeight: 700,
+                            letterSpacing: -0.2),
+                      ),
+                      SizedBox(height: MySize.size8),
+                      Text(
+                        '${AppLocalizations.of(context).translate('sales_amount')}: $businessSymbol ${Helper().formatCurrency(totalSalesAmount)}',
+                        style: AppTheme.getTextStyle(
+                            themeData.textTheme.bodyMedium,
+                            color: themeData.colorScheme.onPrimary,
+                            fontWeight: 600),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               statistics(),
+              SizedBox(height: MySize.size10),
               checkIO(),
+              SizedBox(height: MySize.size10),
+              
+              // Baki Khata Shortcut
+              ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => BakiKhata()));
+                },
+                icon: Icon(MdiIcons.notebookEdit),
+                label: Text("Baki Khata / Tong Dokan"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: customAppTheme.bgLayer1,
+                  foregroundColor: themeData.colorScheme.onBackground,
+                  padding: EdgeInsets.symmetric(vertical: MySize.size16!),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(MySize.size8!),
+                  ),
+                ),
+              ),
+              SizedBox(height: MySize.size10),
+
+              // Daily Shift Analytics Shortcut
+              ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => DailyDashboard()));
+                },
+                icon: Icon(Icons.analytics_outlined),
+                label: Text("Daily Shift Analytics"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: customAppTheme.bgLayer1,
+                  foregroundColor: themeData.colorScheme.onBackground,
+                  padding: EdgeInsets.symmetric(vertical: MySize.size16!),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(MySize.size8!),
+                  ),
+                ),
+              ),
+              SizedBox(height: MySize.size10),
+
               paymentDetails(),
             ],
           ),
@@ -244,11 +331,75 @@ class _HomeState extends State<Home> {
                     visible: (notPermitted),
                   ),
                   ListTile(
+                    leading: Icon(MdiIcons.barcodeScan),
+                    title: Text(
+                      'PC Barcode Scanner',
+                      style: AppTheme.getTextStyle(
+                          themeData.textTheme.titleMedium,
+                          color: themeData.colorScheme.onBackground,
+                          fontWeight: 600),
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => PcScannerPairing()),
+                      );
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(MdiIcons.pill),
+                    title: Text(
+                      'PC AI Medicine Scanner',
+                      style: AppTheme.getTextStyle(
+                          themeData.textTheme.titleMedium,
+                          color: themeData.colorScheme.onBackground,
+                          fontWeight: 600),
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => MedicinePcScannerPairing()),
+                      );
+                    },
+                  ),
+                  ListTile(
                     leading: Icon(
                       Icons.language,
                       color: themeData.colorScheme.onBackground,
                     ),
                     title: changeAppLanguage(),
+                  ),
+                  ListTile(
+                    leading: Icon(
+                      MdiIcons.printerWireless,
+                      color: themeData.colorScheme.onBackground,
+                    ),
+                    title: Text(
+                      'Printer setup',
+                      style: AppTheme.getTextStyle(
+                          themeData.textTheme.titleSmall,
+                          fontWeight: 600),
+                    ),
+                    onTap: () {
+                      Navigator.pushNamed(context, '/printerSettings');
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(
+                      MdiIcons.notebookEdit,
+                      color: themeData.colorScheme.onBackground,
+                    ),
+                    title: Text(
+                      'Baki Khata / Tong Dokan',
+                      style: AppTheme.getTextStyle(
+                          themeData.textTheme.titleSmall,
+                          fontWeight: 600),
+                    ),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => BakiKhata()));
+                    },
                   ),
                   Visibility(
                     visible: accessExpenses,
@@ -319,7 +470,7 @@ class _HomeState extends State<Home> {
                     },
                   ),
                   Visibility(
-                    visible: Config().showFieldForce,
+                    visible: Config.showFieldForce,
                     child: ListTile(
                       leading: Icon(
                         MdiIcons.humanMale,
@@ -384,6 +535,21 @@ class _HomeState extends State<Home> {
                   ),
                   ListTile(
                     leading: Icon(
+                      Icons.lock_clock_outlined,
+                      color: themeData.colorScheme.onBackground,
+                    ),
+                    title: Text(
+                      'Shift close',
+                      style: AppTheme.getTextStyle(
+                          themeData.textTheme.titleSmall,
+                          fontWeight: 600),
+                    ),
+                    onTap: () {
+                      Navigator.pushNamed(context, '/shiftClose');
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(
                       MdiIcons.syncIcon,
                       color: themeData.colorScheme.onBackground,
                     ),
@@ -435,7 +601,7 @@ class _HomeState extends State<Home> {
                     child: Text(
                       Config().copyright +
                           "  " +
-                          Config().appName +
+                          Config.appName +
                           "  " +
                           Config().version,
                       style: AppTheme.getTextStyle(
@@ -537,108 +703,183 @@ class _HomeState extends State<Home> {
 
   //widget statistics
   Widget statistics() {
-    if (totalSales.toString() == 'null') {
-      setState(() {
-        totalSales = 0;
-      });
-    }
+    final salesCount = totalSales ?? 0;
+    final stats = [
+      {
+        'subject': AppLocalizations.of(context).translate('number_of_sales'),
+        'amount': Helper().formatQuantity(salesCount),
+        'icon': Icons.receipt_long_rounded,
+        'color': const Color(0xff1d4ed8),
+      },
+      {
+        'subject': AppLocalizations.of(context).translate('sales_amount'),
+        'amount':
+            '$businessSymbol ${Helper().formatCurrency(totalSalesAmount)}',
+        'icon': Icons.sell_outlined,
+        'color': const Color(0xffb91c1c),
+      },
+      {
+        'subject': AppLocalizations.of(context).translate('paid_amount'),
+        'amount':
+            '$businessSymbol ${Helper().formatCurrency(totalReceivedAmount)}',
+        'icon': Icons.payments_outlined,
+        'color': const Color(0xff15803d),
+      },
+      {
+        'subject': AppLocalizations.of(context).translate('due_amount'),
+        'amount': '$businessSymbol ${Helper().formatCurrency(totalDueAmount)}',
+        'icon': Icons.warning_amber_rounded,
+        'color': const Color(0xffc2410c),
+      },
+    ];
+
+    final screenWidth = MediaQuery.of(context).size.width;
+    final crossAxisCount = screenWidth >= 1100 ? 4 : 2;
+
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.zero,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount,
+        mainAxisSpacing: MySize.size12!,
+        crossAxisSpacing: MySize.size12!,
+        childAspectRatio: (crossAxisCount == 4) ? 1.75 : 1.25,
+      ),
+      itemCount: stats.length,
+      itemBuilder: (context, index) {
+        return _dashboardStatCard(
+          subject: stats[index]['subject'] as String,
+          amount: stats[index]['amount'] as String,
+          icon: stats[index]['icon'] as IconData,
+          backgroundColor: stats[index]['color'] as Color,
+        );
+      },
+    );
+  }
+
+  Widget _dashboardStatCard(
+      {required Color backgroundColor,
+      required String subject,
+      required String amount,
+      required IconData icon}) {
     return Container(
-      child: GridView.count(
-          shrinkWrap: true,
-          physics: ClampingScrollPhysics(),
-          crossAxisCount: 2,
-          padding: EdgeInsets.only(
-              left: MySize.size16!, right: MySize.size16!, top: MySize.size16!),
-          mainAxisSpacing: MySize.size16!,
-          childAspectRatio: 5 / 4,
-          crossAxisSpacing: MySize.size16!,
-          children: <Widget>[
-            block(
-              amount: Helper().formatQuantity(totalSales),
-              subject:
-                  AppLocalizations.of(context).translate('number_of_sales'),
-              backgroundColor: Colors.blue,
-            ),
-            block(
-              amount: '$businessSymbol ' +
-                  Helper().formatCurrency(totalSalesAmount),
-              subject: AppLocalizations.of(context).translate('sales_amount'),
-              backgroundColor: Colors.red,
-            ),
-            block(
-              amount: '$businessSymbol ' +
-                  Helper().formatCurrency(totalReceivedAmount),
-              subject: AppLocalizations.of(context).translate('paid_amount'),
-              backgroundColor: Colors.green,
-            ),
-            block(
-              amount:
-                  '$businessSymbol ' + Helper().formatCurrency(totalDueAmount),
-              subject: AppLocalizations.of(context).translate('due_amount'),
-              backgroundColor: Colors.orange,
-            ),
-          ]),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(MySize.size12!),
+        color: backgroundColor,
+        boxShadow: [
+          BoxShadow(
+            color: backgroundColor.withAlpha(90),
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          )
+        ],
+      ),
+      padding: EdgeInsets.all(MySize.size12!),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Icon(icon, color: Colors.white),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                amount,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTheme.getTextStyle(themeData.textTheme.titleLarge,
+                    fontWeight: 700, color: Colors.white),
+              ),
+              SizedBox(height: MySize.size4),
+              Text(
+                subject,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: AppTheme.getTextStyle(themeData.textTheme.bodyMedium,
+                    fontWeight: 600, color: Colors.white),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
   //widget for payment details
   Widget paymentDetails() {
     return Container(
-      padding: EdgeInsets.all(MySize.size8!),
-      margin: EdgeInsets.all(MySize.size16!),
+      padding: EdgeInsets.all(MySize.size12!),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.all(Radius.circular(MySize.size8!)),
+        borderRadius: BorderRadius.all(Radius.circular(MySize.size12!)),
         color: customAppTheme.bgLayer1,
         border: Border.all(color: customAppTheme.bgLayer4, width: 1.2),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(AppLocalizations.of(context).translate('payment_details'),
-              style: AppTheme.getTextStyle(themeData.textTheme.titleMedium,
-                  fontWeight: 700, letterSpacing: -0.2)),
-          ListView.builder(
+          Row(
+            children: [
+              Icon(Icons.pie_chart_outline,
+                  color: themeData.colorScheme.primary),
+              SizedBox(width: MySize.size8),
+              Text(AppLocalizations.of(context).translate('payment_details'),
+                  style: AppTheme.getTextStyle(themeData.textTheme.titleMedium,
+                      fontWeight: 700, letterSpacing: -0.2)),
+            ],
+          ),
+          SizedBox(height: MySize.size8),
+          if (method.isEmpty)
+            Padding(
+              padding:
+                  EdgeInsets.only(top: MySize.size8!, bottom: MySize.size4!),
+              child: Text(
+                'No payment data available yet.',
+                style: AppTheme.getTextStyle(themeData.textTheme.bodyMedium,
+                    fontWeight: 500,
+                    color: themeData.colorScheme.onBackground,
+                    muted: true),
+              ),
+            ),
+          if (method.isNotEmpty)
+            ListView.separated(
               physics: NeverScrollableScrollPhysics(),
-              padding: EdgeInsets.all(10),
+              padding: EdgeInsets.zero,
               itemCount: method.length,
               shrinkWrap: true,
+              separatorBuilder: (_, __) => SizedBox(height: MySize.size6),
               itemBuilder: (context, index) {
                 return Container(
-                  padding: EdgeInsets.only(bottom: 5),
+                  padding: EdgeInsets.symmetric(
+                      horizontal: MySize.size10!, vertical: MySize.size8!),
+                  decoration: BoxDecoration(
+                    color: themeData.colorScheme.surface,
+                    borderRadius: BorderRadius.circular(MySize.size8!),
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: <Widget>[
-                          Row(
-                            children: <Widget>[
-                              Container(
-                                height: 30,
-                                width: 2,
-                                decoration: BoxDecoration(
-                                  color: Colors.blue.withOpacity(0.5),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(4.0)),
-                                ),
-                              ),
-                              Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 2)),
-                              Text(method[index]['key']),
-                            ],
-                          )
-                        ],
+                    children: [
+                      Expanded(
+                        child: Text(
+                          method[index]['key'].toString(),
+                          style: AppTheme.getTextStyle(
+                              themeData.textTheme.bodyLarge,
+                              fontWeight: 600,
+                              color: themeData.colorScheme.onBackground),
+                        ),
                       ),
-                      Padding(padding: EdgeInsets.symmetric(horizontal: 4)),
-                      Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: <Widget>[
-                            Text('$businessSymbol ' +
-                                Helper().formatCurrency(method[index]['value']))
-                          ])
+                      Text(
+                        '$businessSymbol ${Helper().formatCurrency(method[index]['value'])}',
+                        style: AppTheme.getTextStyle(
+                            themeData.textTheme.bodyLarge,
+                            fontWeight: 700,
+                            color: themeData.colorScheme.primary),
+                      )
                     ],
                   ),
                 );
-              })
+              },
+            )
         ],
       ),
     );
@@ -945,3 +1186,4 @@ class _HomeState extends State<Home> {
     });
   }
 }
+

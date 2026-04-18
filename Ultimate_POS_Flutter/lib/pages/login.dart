@@ -298,6 +298,7 @@ class _LoginState extends State<Login> {
     System().insertToken(loginResponse['access_token']);
     //save system data
     await SystemApi().store();
+    await System().applyWebsiteFeatureSettings();
     await System().insertProductLastSyncDateTimeNow();
     //check previous userId
     if (prefs.getInt('prevUserId') == null ||

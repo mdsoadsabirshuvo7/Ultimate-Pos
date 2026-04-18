@@ -12,6 +12,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../apis/api.dart';
 import '../apis/sell.dart';
+import '../config.dart';
 import '../helpers/AppTheme.dart';
 import '../helpers/SizeConfig.dart';
 import '../helpers/otherHelpers.dart';
@@ -936,7 +937,12 @@ class _SalesState extends State<Sales> {
                               MdiIcons.fileDocumentEditOutline,
                               color: themeData.colorScheme.onBackground,
                             ),
-                            onPressed: () {
+                            onPressed: () async {
+                              final authorized =
+                                  await _authorizeSensitiveAction(context);
+                              if (!authorized) {
+                                return;
+                              }
                               Navigator.pushNamed(context, '/cart',
                                   arguments: Helper().argument(
                                       locId: sellList[index]['location_id'],
@@ -951,7 +957,12 @@ class _SalesState extends State<Sales> {
                               MdiIcons.deleteOutline,
                               color: Colors.red,
                             ),
-                            onPressed: () {
+                            onPressed: () async {
+                              final authorized =
+                                  await _authorizeSensitiveAction(context);
+                              if (!authorized) {
+                                return;
+                              }
                               showDialog(
                                 barrierDismissible: true,
                                 context: context,
@@ -1073,7 +1084,12 @@ class _SalesState extends State<Sales> {
                               MdiIcons.creditCardOutline,
                               color: Colors.purpleAccent,
                             ),
-                            onPressed: () {
+                            onPressed: () async {
+                              final authorized =
+                                  await _authorizeSensitiveAction(context);
+                              if (!authorized) {
+                                return;
+                              }
                               Navigator.pushNamed(context, '/checkout',
                                   arguments: Helper().argument(
                                       invoiceAmount: sellList[index]
@@ -1271,7 +1287,12 @@ class _SalesState extends State<Sales> {
                                   MdiIcons.deleteOutline,
                                   color: Colors.red,
                                 ),
-                                onPressed: () {
+                                onPressed: () async {
+                                  final authorized =
+                                      await _authorizeSensitiveAction(context);
+                                  if (!authorized) {
+                                    return;
+                                  }
                                   showDialog(
                                     barrierDismissible: true,
                                     context: context,
@@ -1624,6 +1645,65 @@ class _SalesState extends State<Sales> {
         ),
       ),
     );
+  }
+
+  Future<bool> _authorizeSensitiveAction(BuildContext context) async {
+    if (!Config.requireManagerPinForSensitiveActions) {
+      return true;
+    }
+
+    final storedPin = Config.managerPin?.trim();
+    if (storedPin == null || storedPin.isEmpty) {
+      return true;
+    }
+
+    final pinController = TextEditingController();
+    final approved = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: Text(
+            'Manager Authorization Required',
+            style: AppTheme.getTextStyle(
+              themeData.textTheme.titleMedium,
+              fontWeight: 600,
+            ),
+          ),
+          content: TextField(
+            controller: pinController,
+            keyboardType: TextInputType.number,
+            obscureText: true,
+            decoration: InputDecoration(
+              labelText: 'Manager PIN',
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: Text(
+                AppLocalizations.of(context).translate('cancel'),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                if (pinController.text.trim() == storedPin) {
+                  Navigator.pop(dialogContext, true);
+                } else {
+                  Fluttertoast.showToast(msg: 'Invalid manager PIN');
+                }
+              },
+              child: Text(
+                AppLocalizations.of(context).translate('ok'),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    pinController.dispose();
+    return approved ?? false;
   }
 
   //status color

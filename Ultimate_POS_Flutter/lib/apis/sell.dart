@@ -13,7 +13,21 @@ class SellApi extends Api {
     var token = await System().getToken();
     var response = await http.post(Uri.parse(url),
         headers: this.getHeader('$token'), body: data);
+    print("----- SELL STORE RESPONSE -----");
+    print(response.body);
+    print("-------------------------------");
     var info = jsonDecode(response.body);
+    if (info is Map) {
+      print('API Error Map: $info');
+      return {'error': info.toString()};
+    }
+    if (info is List && info.isEmpty) {
+      print('API Empty List');
+      return {'error': 'Empty response'};
+    }
+    if (info is List && info[0].containsKey('original') && info[0]['original'] != null && info[0]['original']['error'] != null) {
+       print('Backend Exception: ');
+    }
     var result;
 
     if (info[0]['payment_lines'] != null) {
@@ -87,3 +101,4 @@ class SellApi extends Api {
     return response;
   }
 }
+

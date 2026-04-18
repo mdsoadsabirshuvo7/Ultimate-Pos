@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import '../config.dart';
 import '../apis/system.dart';
 import '../models/contact_model.dart';
 import 'database.dart';
@@ -214,5 +215,89 @@ class System {
       await db.delete('system', where: 'key = ?', whereArgs: ['$element']);
     });
     await SystemApi().store();
+    await applyWebsiteFeatureSettings();
+  }
+
+  //sync feature behavior from sector71.app data (business, subscription, permissions)
+  Future<void> applyWebsiteFeatureSettings() async {
+    try {
+      final business = await get('business');
+      final activeSubscription = await get('active-subscription');
+      final permissions = await getPermission();
+
+      // App branding from website business profile.
+      if (business is List && business.isNotEmpty && business[0] is Map) {
+        final Map businessDetails = business[0];
+        final websiteBusinessName = businessDetails['name']?.toString();
+        if (websiteBusinessName != null &&
+            websiteBusinessName.trim().isNotEmpty) {
+          Config.appName = websiteBusinessName;
+        }
+
+        // Optional registration visibility keys if provided by backend.
+        Config.showRegister = _isTruthy(businessDetails['show_register']) ||
+            _isTruthy(businessDetails['allow_registration']) ||
+            _isTruthy(businessDetails['enable_registration']);
+      }
+
+      Map<dynamic, dynamic> packageDetails = {};
+      if (activeSubscription is List &&
+          activeSubscription.isNotEmpty &&
+          activeSubscription[0] is Map &&
+          activeSubscription[0]['package_details'] is Map) {
+        packageDetails = activeSubscription[0]['package_details'];
+      }
+
+        // Manager authorization flags synced from website-side settings when available.
+        final Map businessDetails =
+          (business is List && business.isNotEmpty && business[0] is Map)
+            ? business[0]
+            : {};
+        final managerPin = (businessDetails['mobile_manager_pin'] ??
+            businessDetails['manager_pin'] ??
+            businessDetails['pos_manager_pin'])
+          ?.toString()
+          .trim();
+        final requireManagerPin =
+          _isTruthy(businessDetails['require_manager_pin']) ||
+            _isTruthy(packageDetails['require_manager_pin']) ||
+            _isTruthy(packageDetails['manager_pin_required']);
+        final hasManagerPin = managerPin != null && managerPin.isNotEmpty;
+        Config.managerPin = hasManagerPin ? managerPin : null;
+        Config.requireManagerPinForSensitiveActions =
+          requireManagerPin || hasManagerPin;
+
+      // Derive features from package modules and user permissions.
+      final hasAllPermission = permissions.contains('all');
+      final fieldForcePermission = hasAllPermission ||
+          permissions.contains('crm.access_all_schedule') ||
+          permissions.contains('crm.access_own_schedule') ||
+          permissions.contains('essentials.crm_module') ||
+          permissions.contains('field_force.access');
+
+      final callLogPermission = hasAllPermission ||
+          permissions.contains('crm.access_all_schedule') ||
+          permissions.contains('crm.access_own_schedule') ||
+          permissions.contains('essentials.crm_module');
+
+      final packageFieldForce =
+          _isTruthy(packageDetails['field_force_module']) ||
+              _isTruthy(packageDetails['crm_module']);
+      final packageCallLog = _isTruthy(packageDetails['call_log_module']) ||
+          _isTruthy(packageDetails['crm_module']) ||
+          _isTruthy(packageDetails['essentials_module']);
+
+      Config.showFieldForce = fieldForcePermission && packageFieldForce;
+      Config.syncCallLog = callLogPermission && packageCallLog;
+    } catch (_) {
+      // Keep safe defaults if website flags are not available yet.
+    }
+  }
+
+  bool _isTruthy(dynamic value) {
+    if (value == null) return false;
+    if (value is bool) return value;
+    final text = value.toString().trim().toLowerCase();
+    return text == '1' || text == 'true' || text == 'yes';
   }
 }

@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
+import '../config.dart';
 import '../helpers/AppTheme.dart';
 import '../helpers/SizeConfig.dart';
 import '../helpers/otherHelpers.dart';
@@ -15,6 +16,7 @@ import '../models/sellDatabase.dart';
 import '../models/system.dart';
 import '../models/variations.dart';
 import 'elements.dart';
+import 'continuous_scanner.dart';
 
 class Cart extends StatefulWidget {
   @override
@@ -23,6 +25,7 @@ class Cart extends StatefulWidget {
 
 class CartState extends State<Cart> {
   bool proceedNext = true, canEditPrice = false, canEditDiscount = false;
+  bool _managerAuthorizedForSession = false;
   int? selectedContactId, editItem, selectedTaxId = 0, sellingPriceGroupId = 0;
   double? maxDiscountValue, discountAmount = 0.00;
   List cartItems = [];
@@ -117,9 +120,18 @@ class CartState extends State<Cart> {
             }),
         actions: [
           InkWell(
-            onTap: () async {
-              var barcode = await Helper().barcodeScan();
-              await getScannedProduct(barcode);
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ContinuousScanner(
+                    onScan: (barcode) async {
+                      await getScannedProduct(barcode);
+                      return true;
+                    },
+                  ),
+                ),
+              );
             },
             child: Container(
               margin: EdgeInsets.only(
@@ -227,7 +239,12 @@ class CartState extends State<Cart> {
                             allow: true)
                       ],
                       keyboardType: TextInputType.number,
-                      onChanged: (value) {
+                      onChanged: (value) async {
+                        final authorized =
+                            await _authorizeSensitiveAction(context);
+                        if (!authorized) {
+                          return;
+                        }
                         setState(() {
                           discountAmount = Helper().validateInput(value);
                           if (maxDiscountValue != null &&
@@ -641,7 +658,13 @@ class CartState extends State<Cart> {
                                                   ),
                                                   color: themeData
                                                       .colorScheme.onBackground,
-                                                  onPressed: () {
+                                                  onPressed: () async {
+                                                    final authorized =
+                                                        await _authorizeSensitiveAction(
+                                                            context);
+                                                    if (!authorized) {
+                                                      return;
+                                                    }
                                                     setState(() {
                                                       (editItem == index)
                                                           ? editItem = null
@@ -653,7 +676,13 @@ class CartState extends State<Cart> {
                                                       size: MySize.size20),
                                                   color: themeData
                                                       .colorScheme.onBackground,
-                                                  onPressed: () {
+                                                  onPressed: () async {
+                                                    final authorized =
+                                                        await _authorizeSensitiveAction(
+                                                            context);
+                                                    if (!authorized) {
+                                                      return;
+                                                    }
                                                     showDialog(
                                                       barrierDismissible: true,
                                                       context: context,
@@ -966,7 +995,12 @@ class CartState extends State<Cart> {
                                 RegExp(r'^(\d+)?\.?\d{0,2}'))
                           ],
                           keyboardType: TextInputType.number,
-                          onChanged: (newValue) {
+                          onChanged: (newValue) async {
+                            final authorized =
+                                await _authorizeSensitiveAction(context);
+                            if (!authorized) {
+                              return;
+                            }
                             double value = Helper().validateInput(newValue);
                             SellDatabase()
                                 .update(index['id'], {'unit_price': '$value'});
@@ -1018,7 +1052,12 @@ class CartState extends State<Cart> {
                                 allow: true)
                           ],
                           keyboardType: TextInputType.number,
-                          onChanged: (newValue) {
+                          onChanged: (newValue) async {
+                            final authorized =
+                                await _authorizeSensitiveAction(context);
+                            if (!authorized) {
+                              return;
+                            }
                             double value = Helper().validateInput(newValue);
                             SellDatabase().update(
                                 index['id'], {'discount_amount': '$value'});
@@ -1096,7 +1135,11 @@ class CartState extends State<Cart> {
               child: Text(value),
             );
           }).toList(),
-          onChanged: (newValue) {
+          onChanged: (newValue) async {
+            final authorized = await _authorizeSensitiveAction(context);
+            if (!authorized) {
+              return;
+            }
             SellDatabase().update(index['id'], {'discount_type': '$newValue'});
             cartList();
           }),
@@ -1119,7 +1162,11 @@ class CartState extends State<Cart> {
               child: Text(value),
             );
           }).toList(),
-          onChanged: (newValue) {
+          onChanged: (newValue) async {
+            final authorized = await _authorizeSensitiveAction(context);
+            if (!authorized) {
+              return;
+            }
             setState(() {
               selectedDiscountType = newValue.toString();
               calculateSubtotal(
@@ -1127,6 +1174,74 @@ class CartState extends State<Cart> {
             });
           }),
     );
+  }
+
+  Future<bool> _authorizeSensitiveAction(BuildContext context) async {
+    if (!Config.requireManagerPinForSensitiveActions) {
+      return true;
+    }
+
+    if (_managerAuthorizedForSession) {
+      return true;
+    }
+
+    final storedPin = Config.managerPin?.trim();
+    if (storedPin == null || storedPin.isEmpty) {
+      return true;
+    }
+
+    final pinController = TextEditingController();
+    final approved = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: Text(
+            'Manager Authorization Required',
+            style: AppTheme.getTextStyle(
+              themeData.textTheme.titleMedium,
+              fontWeight: 600,
+            ),
+          ),
+          content: TextField(
+            controller: pinController,
+            keyboardType: TextInputType.number,
+            obscureText: true,
+            decoration: InputDecoration(
+              labelText: 'Manager PIN',
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: Text(
+                AppLocalizations.of(context).translate('cancel'),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                if (pinController.text.trim() == storedPin) {
+                  Navigator.pop(dialogContext, true);
+                } else {
+                  Fluttertoast.showToast(msg: 'Invalid manager PIN');
+                }
+              },
+              child: Text(
+                AppLocalizations.of(context).translate('ok'),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    pinController.dispose();
+    final isApproved = approved ?? false;
+    if (isApproved) {
+      _managerAuthorizedForSession = true;
+    }
+
+    return isApproved;
   }
 
   //dropdown tax widget

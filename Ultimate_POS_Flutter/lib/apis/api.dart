@@ -6,7 +6,7 @@ import '../config.dart';
 
 class Api {
   String baseUrl = Config.baseUrl,
-      apiUrl = Config.baseUrl + 'connector/api/',
+  apiUrl = Config.connectorApiUrl,
       clientId = Config().clientId,
       clientSecret = Config().clientSecret;
 

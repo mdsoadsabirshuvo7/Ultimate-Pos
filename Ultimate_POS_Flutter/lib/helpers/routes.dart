@@ -8,9 +8,11 @@ import '../pages/follow_up.dart';
 import '../pages/field_force.dart';
 import '../pages/home.dart';
 import '../pages/login.dart';
+import '../pages/printer_settings.dart';
 import '../pages/products.dart';
 import '../pages/sales.dart';
 import '../pages/shipment.dart';
+import '../pages/shift_close.dart';
 import '../pages/splash.dart';
 
 class Routes {
@@ -20,6 +22,7 @@ class Routes {
       '/login': (context) => Login(),
       '/home': (context) => Home(),
       '/products': (context) => Products(),
+      '/printerSettings': (context) => PrinterSettings(),
       '/sale': (context) => Sales(),
       '/cart': (context) => Cart(),
       '/customer': (context) => Customer(),
@@ -27,6 +30,7 @@ class Routes {
       '/expense': (context) => Expense(),
       '/contactPayment': (context) => ContactPayment(),
       '/shipment': (context) => Shipment(),
+      '/shiftClose': (context) => ShiftClose(),
       '/leads': (context) => Contacts(),
       '/followUp': (context) => FollowUp(),
       '/fieldForce': (context) => FieldForce()

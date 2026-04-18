@@ -2,25 +2,30 @@ import 'dart:ui';
 //import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class Config {
-
-  static String baseUrl = 'https://sector71.app/public/';
+  static const String serverOrigin = 'https://sector71.app';
+  static const String baseUrl = serverOrigin + '/public/';
+  static const String connectorApiUrl = baseUrl + 'connector/api/';
   static int? userId;
-      String clientId = '21',
-       clientSecret = 'psiZvPfu3Q6YsS0FMIRpb9DJPZT6MG0LtA4teXbU',
-        copyright = '\u00a9',
-        appName = 'YOUR_APP_NAME',
-        version = 'V 1.7',
+  static String appName = 'Sector71 Software';
+  static bool syncCallLog = false, showRegister = false, showFieldForce = false;
+  static bool requireManagerPinForSensitiveActions = false;
+  static String? managerPin;
+  String clientId = '21',
+      clientSecret = 'psiZvPfu3Q6YsS0FMIRpb9DJPZT6MG0LtA4teXbU',
+      copyright = '\u00a9',
+      version = 'V 1.8',
       splashScreen = '${Config.baseUrl}uploads/mobile/welcome.jpg',
       loginScreen = '${Config.baseUrl}uploads/mobile/login.jpg',
       noDataImage = '${Config.baseUrl}uploads/mobile/no_data.jpg',
       defaultBusinessImage = '${Config.baseUrl}uploads/business_default.jpg';
-    final bool syncCallLog = false, showRegister = false, showFieldForce = false;
 
   //quantity precision       //currency precision   //call_log sync duration
-  static int quantityPrecision = 2, currencyPrecision = 2, callLogSyncDuration = 10;
+  static int quantityPrecision = 2,
+      currencyPrecision = 2,
+      callLogSyncDuration = 10;
 
   //List of locale language code
-  List locale = ['en', 'ar', 'de', 'fr', 'es','tr','id','my'];
+  List locale = ['en', 'ar', 'de', 'fr', 'es', 'tr', 'id', 'my'];
   String defaultLanguage = 'en';
 
   //List of locales included

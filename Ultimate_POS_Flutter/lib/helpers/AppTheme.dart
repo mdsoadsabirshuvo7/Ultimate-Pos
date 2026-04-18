@@ -192,6 +192,7 @@ class AppTheme {
 
   //Color Themes
   static final ThemeData lightTheme = ThemeData(
+    useMaterial3: true,
     brightness: Brightness.light,
     primaryColor: Color(0xff3d63ff),
     canvasColor: Colors.transparent,
@@ -202,7 +203,7 @@ class AppTheme {
       actionsIconTheme: IconThemeData(
         color: Color(0xff495057),
       ),
-      color: Color(0xffffffff),
+      backgroundColor: Color(0xffffffff),
       iconTheme: IconThemeData(color: Color(0xff495057), size: 24),
     ),
     navigationRailTheme: NavigationRailThemeData(
@@ -215,7 +216,7 @@ class AppTheme {
         unselectedLabelTextStyle: TextStyle(color: Color(0xff495057))),
     cardTheme: CardThemeData(
       color: Colors.white,
-      shadowColor: Colors.black.withOpacity(0.4),
+      shadowColor: Colors.black.withAlpha((255 * 0.4).round()),
       elevation: 1,
       margin: EdgeInsets.all(0),
     ),
@@ -287,12 +288,12 @@ class AppTheme {
             secondary: Color(0xff495057),
             secondaryContainer: Color(0xff3cd278),
             onSecondary: Colors.white,
-            surface: Color(0xffe2e7f1),
-            background: Color(0xfff3f4f7),
-            onBackground: Color(0xff495057))
+            surface: Color(0xfff3f4f7),
+            onSurface: Color(0xff495057))
         .copyWith(secondary: Color(0xff3d63ff)),
   );
   static ThemeData darkTheme = ThemeData(
+      useMaterial3: true,
       brightness: Brightness.dark,
       canvasColor: Colors.transparent,
       primaryColor: Color(0xff3d63ff),
@@ -303,7 +304,7 @@ class AppTheme {
         actionsIconTheme: IconThemeData(
           color: Color(0xffffffff),
         ),
-        color: Color(0xff2e343b),
+        backgroundColor: Color(0xff2e343b),
         iconTheme: IconThemeData(color: Color(0xffffffff), size: 24),
       ),
       cardTheme: CardThemeData(
@@ -316,7 +317,6 @@ class AppTheme {
         color: Colors.white,
       ),
       textTheme: darkTextTheme,
-      indicatorColor: Colors.white,
       disabledColor: Color(0xffa3a3a3),
       highlightColor: Colors.white,
       inputDecorationTheme: InputDecorationTheme(
@@ -352,6 +352,7 @@ class AppTheme {
       tabBarTheme: TabBarThemeData(
         unselectedLabelColor: Color(0xff495057),
         labelColor: Color(0xff3d63ff),
+        indicatorColor: Colors.white,
         indicatorSize: TabBarIndicatorSize.label,
         indicator: UnderlineTabIndicator(
           borderSide: BorderSide(color: Color(0xff3d63ff), width: 2.0),
@@ -378,11 +379,10 @@ class AppTheme {
         primaryContainer: Color(0xff3d63ff),
         secondary: Color(0xff00cc77),
         secondaryContainer: Color(0xff00cc77),
-        background: Color(0xff343a40),
+        surface: Color(0xff343a40),
         onPrimary: Colors.white,
-        onBackground: Colors.white,
+        onSurface: Colors.white,
         onSecondary: Colors.white,
-        surface: Color(0xff585e63),
       ).copyWith(secondary: Color(0xff3d63ff)));
 
   static ThemeData getThemeFromThemeMode(int themeMode) {

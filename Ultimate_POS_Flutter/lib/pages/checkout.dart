@@ -11,6 +11,7 @@ import '../helpers/AppTheme.dart';
 import '../helpers/SizeConfig.dart';
 import '../helpers/date_time_picker_compat.dart';
 import '../helpers/otherHelpers.dart';
+import '../helpers/thermal_printer.dart';
 import '../locale/MyLocalizations.dart';
 import '../models/paymentDatabase.dart';
 import '../models/sell.dart';
@@ -48,7 +49,10 @@ class CheckOutState extends State<CheckOut> {
   bool _printInvoice = true,
       printWebInvoice = false,
       saleCreated = false,
+      splitBillEnabled = false,
+      splitPaymentsGenerated = false,
       isLoading = false;
+  int splitCount = 2;
   static int themeType = 1;
   ThemeData themeData = AppTheme.getThemeFromThemeMode(themeType);
   CustomAppTheme customAppTheme = AppTheme.getCustomAppTheme(themeType);
@@ -200,6 +204,91 @@ class CheckOutState extends State<CheckOut> {
               },
             ),
           ),
+          Card(
+            margin: EdgeInsets.all(MySize.size5!),
+            child: Padding(
+              padding: EdgeInsets.all(MySize.size10!),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SwitchListTile(
+                    value: splitBillEnabled,
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(
+                      'Split Bill',
+                      style: AppTheme.getTextStyle(
+                          themeData.textTheme.titleMedium,
+                          fontWeight: 700),
+                    ),
+                    subtitle: Text(
+                      'Auto divide the invoice into equal payment shares.',
+                      style: AppTheme.getTextStyle(
+                          themeData.textTheme.bodySmall,
+                          fontWeight: 500,
+                          color: themeData.colorScheme.onBackground,
+                          muted: true),
+                    ),
+                    onChanged: (value) {
+                      _toggleSplitBill(value);
+                    },
+                  ),
+                  if (splitBillEnabled)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              'Parts:',
+                              style: AppTheme.getTextStyle(
+                                  themeData.textTheme.bodyLarge,
+                                  fontWeight: 600),
+                            ),
+                            SizedBox(width: MySize.size8),
+                            IconButton(
+                              onPressed: () {
+                                _setSplitCount(splitCount - 1);
+                              },
+                              icon: Icon(Icons.remove_circle_outline),
+                            ),
+                            Text(
+                              '$splitCount',
+                              style: AppTheme.getTextStyle(
+                                  themeData.textTheme.titleLarge,
+                                  fontWeight: 700),
+                            ),
+                            IconButton(
+                              onPressed: () {
+                                _setSplitCount(splitCount + 1);
+                              },
+                              icon: Icon(Icons.add_circle_outline),
+                            ),
+                            Spacer(),
+                            FilledButton.tonal(
+                              onPressed: _applySplitBill,
+                              child: const Text('Apply split'),
+                            )
+                          ],
+                        ),
+                        Wrap(
+                          spacing: MySize.size6!,
+                          runSpacing: MySize.size6!,
+                          children:
+                              _buildSplitAmounts(invoiceAmount, splitCount)
+                                  .asMap()
+                                  .entries
+                                  .map((entry) => Chip(
+                                        label: Text(
+                                            'Part ${entry.key + 1}: $symbol${Helper().formatCurrency(entry.value)}'),
+                                      ))
+                                  .toList(),
+                        )
+                      ],
+                    )
+                ],
+              ),
+            ),
+          ),
           ListView.builder(
               physics: ScrollPhysics(),
               shrinkWrap: true,
@@ -272,7 +361,8 @@ class CheckOutState extends State<CheckOut> {
                                       muted: true)),
                               DropdownButtonHideUnderline(
                                 child: DropdownButton(
-                                    dropdownColor: themeData.scaffoldBackgroundColor,
+                                    dropdownColor:
+                                        themeData.scaffoldBackgroundColor,
                                     icon: Icon(
                                       Icons.arrow_drop_down,
                                     ),
@@ -325,7 +415,8 @@ class CheckOutState extends State<CheckOut> {
                                       muted: true)),
                               DropdownButtonHideUnderline(
                                 child: DropdownButton(
-                                    dropdownColor: themeData.scaffoldBackgroundColor,
+                                    dropdownColor:
+                                        themeData.scaffoldBackgroundColor,
                                     icon: Icon(
                                       Icons.arrow_drop_down,
                                     ),
@@ -458,6 +549,11 @@ class CheckOutState extends State<CheckOut> {
                                       invoiceAmount =
                                           argument!['invoiceAmount'] +
                                               Helper().validateInput(value);
+                                      if (splitBillEnabled &&
+                                          splitPaymentsGenerated) {
+                                        _applySplitBill();
+                                        return;
+                                      }
                                       calculateMultiPayment();
                                     })),
                             Padding(padding: EdgeInsets.symmetric(vertical: 5)),
@@ -654,17 +750,11 @@ class CheckOutState extends State<CheckOut> {
                               flex: 1,
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                    foregroundColor: themeData.colorScheme.onPrimary,
+                                    foregroundColor:
+                                        themeData.colorScheme.onPrimary,
                                     elevation: 5),
                                 onPressed: () {
-                                  _printInvoice = false;
-                                  if (pendingAmount >= 0.01) {
-                                    alertPending(context);
-                                  } else {
-                                    if (!saleCreated) {
-                                      onSubmit();
-                                    }
-                                  }
+                                  _showFinalizeBottomSheet(printInvoice: false);
                                 },
                                 child: Text(
                                   AppLocalizations.of(context)
@@ -685,17 +775,11 @@ class CheckOutState extends State<CheckOut> {
                               flex: 1,
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                    foregroundColor: themeData.colorScheme.primary,
+                                    foregroundColor:
+                                        themeData.colorScheme.primary,
                                     elevation: 5),
                                 onPressed: () {
-                                  _printInvoice = true;
-                                  if (pendingAmount >= 0.01) {
-                                    alertPending(context);
-                                  } else {
-                                    if (!saleCreated) {
-                                      onSubmit();
-                                    }
-                                  }
+                                  _showFinalizeBottomSheet(printInvoice: true);
                                 },
                                 child: Text(
                                   AppLocalizations.of(context)
@@ -775,6 +859,88 @@ class CheckOutState extends State<CheckOut> {
     if (this.mounted) {
       setState(() {});
     }
+  }
+
+  void _toggleSplitBill(bool enabled) {
+    setState(() {
+      splitBillEnabled = enabled;
+    });
+
+    if (enabled) {
+      _applySplitBill();
+      return;
+    }
+
+    if (splitPaymentsGenerated && paymentMethods.isNotEmpty) {
+      setState(() {
+        payments = [
+          {
+            'amount': invoiceAmount,
+            'method': paymentMethods[0]['name'],
+            'note': '',
+            'account_id': paymentMethods[0]['account_id']
+          }
+        ];
+        splitPaymentsGenerated = false;
+      });
+      calculateMultiPayment();
+    }
+  }
+
+  void _setSplitCount(int count) {
+    final bounded = count.clamp(2, 10);
+    if (bounded == splitCount) {
+      return;
+    }
+
+    setState(() {
+      splitCount = bounded;
+    });
+
+    if (splitBillEnabled && splitPaymentsGenerated) {
+      _applySplitBill();
+    }
+  }
+
+  void _applySplitBill() {
+    if (paymentMethods.isEmpty) {
+      Fluttertoast.showToast(msg: 'Payment methods are not loaded yet');
+      return;
+    }
+
+    final splitAmounts = _buildSplitAmounts(invoiceAmount, splitCount);
+    setState(() {
+      payments = splitAmounts
+          .asMap()
+          .entries
+          .map((entry) => {
+                'amount': entry.value,
+                'method': paymentMethods[0]['name'],
+                'note': 'Split ${entry.key + 1}/$splitCount',
+                'account_id': paymentMethods[0]['account_id']
+              })
+          .toList();
+      splitPaymentsGenerated = true;
+    });
+    calculateMultiPayment();
+  }
+
+  List<double> _buildSplitAmounts(double total, int count) {
+    if (count <= 1) {
+      return [total];
+    }
+
+    final totalCents = (total * 100).round();
+    final base = totalCents ~/ count;
+    final remainder = totalCents % count;
+    final splitAmounts = <double>[];
+
+    for (int i = 0; i < count; i++) {
+      final cents = base + (i < remainder ? 1 : 0);
+      splitAmounts.add(cents / 100.0);
+    }
+
+    return splitAmounts;
   }
 
   setPaymentDetails() async {
@@ -885,9 +1051,28 @@ class CheckOutState extends State<CheckOut> {
   //print option
   printOption(sellId) async {
     Timer(Duration(seconds: 2), () async {
+      final nextRoute = (argument!['sellId'] == null) ? '/products' : '/sale';
+      void moveToNextPage() {
+        Navigator.pushNamedAndRemoveUntil(
+            context, nextRoute, ModalRoute.withName('/home'));
+      }
+
       List sellDetail = await SellDatabase().getSellBySellId(sellId);
       String? invoice = sellDetail[0]['invoice_url'];
       String invoiceNo = sellDetail[0]['invoice_no'];
+
+      if (_printInvoice) {
+        final thermalPrinted = await ThermalPrinterService().printSaleReceipt(
+          sellId: sellId,
+          taxId: argument!['taxId'],
+          route: PrintRouteType.customer,
+        );
+        if (thermalPrinted) {
+          moveToNextPage();
+          return;
+        }
+      }
+
       //print invoice
       if (_printInvoice) {
         if (printWebInvoice && invoice != null) {
@@ -897,29 +1082,20 @@ class CheckOutState extends State<CheckOut> {
                 .printDocument(sellId, argument!['taxId'], context,
                     invoice: response.body)
                 .then((value) {
-              Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  (argument!['sellId'] == null) ? '/products' : '/sale',
-                  ModalRoute.withName('/home'));
+              moveToNextPage();
             });
           } else {
             await Helper()
                 .printDocument(sellId, argument!['taxId'], context)
                 .then((value) {
-              Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  (argument!['sellId'] == null) ? '/products' : '/sale',
-                  ModalRoute.withName('/home'));
+              moveToNextPage();
             });
           }
         } else {
           Helper()
               .printDocument(sellId, argument!['taxId'], context)
               .then((value) {
-            Navigator.pushNamedAndRemoveUntil(
-                context,
-                (argument!['sellId'] == null) ? '/products' : '/sale',
-                ModalRoute.withName('/home'));
+            moveToNextPage();
           });
         }
       } else {
@@ -930,33 +1106,98 @@ class CheckOutState extends State<CheckOut> {
                 .savePdf(sellId, argument!['taxId'], context, invoiceNo,
                     invoice: response.body)
                 .then((value) {
-              Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  (argument!['sellId'] == null) ? '/products' : '/sale',
-                  ModalRoute.withName('/home'));
+              moveToNextPage();
             });
           } else {
             await Helper()
                 .savePdf(sellId, argument!['taxId'], context, invoiceNo)
                 .then((value) {
-              Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  (argument!['sellId'] == null) ? '/products' : '/sale',
-                  ModalRoute.withName('/home'));
+              moveToNextPage();
             });
           }
         } else {
           Helper()
               .savePdf(sellId, argument!['taxId'], context, invoiceNo)
               .then((value) {
-            Navigator.pushNamedAndRemoveUntil(
-                context,
-                (argument!['sellId'] == null) ? '/products' : '/sale',
-                ModalRoute.withName('/home'));
+            moveToNextPage();
           });
         }
       }
     });
+  }
+
+  Future<void> _showFinalizeBottomSheet({required bool printInvoice}) async {
+    await showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(MySize.size16!)),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Padding(
+            padding: EdgeInsets.all(MySize.size16!),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  printInvoice
+                      ? 'Finalize and print receipt?'
+                      : 'Finalize and share invoice?',
+                  style: AppTheme.getTextStyle(themeData.textTheme.titleLarge,
+                      fontWeight: 700),
+                ),
+                SizedBox(height: MySize.size10),
+                Text(
+                  'Total: $symbol${Helper().formatCurrency(invoiceAmount)}',
+                  style: AppTheme.getTextStyle(themeData.textTheme.bodyLarge,
+                      fontWeight: 600),
+                ),
+                Text(
+                  'Balance: $symbol${Helper().formatCurrency(pendingAmount)}',
+                  style: AppTheme.getTextStyle(themeData.textTheme.bodyLarge,
+                      fontWeight: 600),
+                ),
+                SizedBox(height: MySize.size16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(sheetContext),
+                        child: const Text('Cancel'),
+                      ),
+                    ),
+                    SizedBox(width: MySize.size10),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(sheetContext);
+                          _submitWithOptions(printInvoice: printInvoice);
+                        },
+                        child: const Text('Confirm'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _submitWithOptions({required bool printInvoice}) {
+    _printInvoice = printInvoice;
+    if (pendingAmount >= 0.01) {
+      alertPending(context);
+      return;
+    }
+
+    if (!saleCreated) {
+      onSubmit();
+    }
   }
 
   //alert dialog for amount pending

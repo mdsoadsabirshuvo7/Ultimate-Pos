@@ -13,9 +13,11 @@ import '../helpers/otherHelpers.dart';
 import '../locale/MyLocalizations.dart';
 import '../models/product_model.dart';
 import '../models/sell.dart';
+import '../models/sellDatabase.dart';
 import '../models/system.dart';
 import '../models/variations.dart';
 import 'elements.dart';
+import 'continuous_scanner.dart';
 
 class Products extends StatefulWidget {
   @override
@@ -170,7 +172,7 @@ class _ProductsState extends State<Products> {
     findSellingPriceGroupId(selectedLocationId);
     await Variations()
         .get(
-        brandId: brandId,
+            brandId: brandId,
             categoryId: categoryId,
             subCategoryId: subCategoryId,
             inStock: inStock,
@@ -296,6 +298,264 @@ class _ProductsState extends State<Products> {
     return (width / 2 - MySize.size24!) / ((width / 2 - MySize.size24!) + 60);
   }
 
+  Future<int> _getCartCountOnly() async {
+    final count = await Sell().cartItemCount(
+        isCompleted: 0,
+        sellId: (argument != null && argument!['sellId'] != null)
+            ? argument!['sellId']
+            : null);
+    return int.tryParse(count) ?? 0;
+  }
+
+  Future<int> _getHeldOrderCountOnly() async {
+    if (selectedLocationId == 0) {
+      return 0;
+    }
+    final holds =
+        await SellDatabase().getHeldSells(locationId: selectedLocationId);
+    return holds.length;
+  }
+
+  Future<void> _holdCurrentCart() async {
+    if (selectedLocationId == 0) {
+      Fluttertoast.showToast(
+          msg: AppLocalizations.of(context).translate('please_set_a_location'));
+      return;
+    }
+
+    if (argument != null && argument!['sellId'] != null) {
+      Fluttertoast.showToast(
+          msg: 'Finish current draft before creating another hold');
+      return;
+    }
+
+    final itemCount = await _getCartCountOnly();
+    if (itemCount == 0) {
+      Fluttertoast.showToast(
+          msg:
+              AppLocalizations.of(context).translate('no_items_added_to_cart'));
+      return;
+    }
+
+    final holdId = await Sell().holdCurrentCart(locationId: selectedLocationId);
+    if (holdId == null) {
+      Fluttertoast.showToast(msg: 'Unable to hold cart');
+      return;
+    }
+
+    setState(() {
+      products = [];
+      offset = 0;
+    });
+    await productList();
+    Fluttertoast.showToast(msg: 'Order placed on hold (#$holdId)');
+  }
+
+  Future<void> _showHeldOrdersBottomSheet() async {
+    if (selectedLocationId == 0) {
+      Fluttertoast.showToast(
+          msg: AppLocalizations.of(context).translate('please_set_a_location'));
+      return;
+    }
+
+    final heldOrders =
+        await SellDatabase().getHeldSells(locationId: selectedLocationId);
+
+    if (!mounted) return;
+    await showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(MySize.size16!)),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Padding(
+            padding: EdgeInsets.all(MySize.size16!),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Held Orders',
+                  style: AppTheme.getTextStyle(themeData.textTheme.titleLarge,
+                      fontWeight: 700),
+                ),
+                SizedBox(height: MySize.size8),
+                Expanded(
+                  child: heldOrders.isEmpty
+                      ? Center(
+                          child: Text(
+                            'No held orders found',
+                            style: AppTheme.getTextStyle(
+                                themeData.textTheme.bodyLarge,
+                                fontWeight: 500),
+                          ),
+                        )
+                      : ListView.separated(
+                          itemCount: heldOrders.length,
+                          separatorBuilder: (_, __) =>
+                              SizedBox(height: MySize.size6),
+                          itemBuilder: (context, index) {
+                            final order = heldOrders[index];
+                            return Card(
+                              child: ListTile(
+                                leading: Icon(Icons.pause_circle_outline,
+                                    color: themeData.colorScheme.primary),
+                                title: Text(
+                                    order['invoice_no']?.toString() ??
+                                        'Hold #${order['id']}',
+                                    style: AppTheme.getTextStyle(
+                                        themeData.textTheme.titleMedium,
+                                        fontWeight: 600)),
+                                subtitle: Text(
+                                    'Items: ${order['item_count']} | ${order['transaction_date'] ?? ''}'),
+                                trailing: FilledButton.tonal(
+                                  onPressed: () {
+                                    Navigator.pop(sheetContext);
+                                    Navigator.pushNamed(context, '/cart',
+                                        arguments: Helper().argument(
+                                            locId: order['location_id'],
+                                            sellId: order['id']));
+                                  },
+                                  child: Text('Resume'),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+    setState(() {});
+  }
+
+  void _openCartPage() {
+    if (argument != null) {
+      Navigator.pushReplacementNamed(context, '/cart',
+          arguments: Helper().argument(
+              locId: argument!['locationId'], sellId: argument!['sellId']));
+      return;
+    }
+
+    if (selectedLocationId != 0 && cartCount > 0) {
+      Navigator.pushNamed(context, '/cart',
+          arguments: Helper().argument(locId: selectedLocationId));
+      return;
+    }
+
+    Fluttertoast.showToast(
+        msg: AppLocalizations.of(context).translate('no_items_added_to_cart'));
+  }
+
+  Widget _buildProductsBody() {
+    return ListView(
+      physics: ClampingScrollPhysics(),
+      controller: _scrollController,
+      padding: EdgeInsets.all(0),
+      children: [
+        Visibility(
+            visible: (selectedLocationId != 0),
+            child: filter(
+              _scaffoldKey,
+            )),
+        (selectedLocationId == 0)
+            ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.location_on),
+                    Text(AppLocalizations.of(context)
+                        .translate('please_set_a_location')),
+                  ],
+                ),
+              )
+            : _productsList(),
+      ],
+    );
+  }
+
+  Widget _buildCartSidePanel() {
+    return Container(
+      margin: EdgeInsets.only(
+          right: MySize.size16!, top: MySize.size16!, bottom: MySize.size16!),
+      child: Card(
+        elevation: 2,
+        child: Padding(
+          padding: EdgeInsets.all(MySize.size16!),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Current cart',
+                    style: AppTheme.getTextStyle(themeData.textTheme.titleLarge,
+                        fontWeight: 700),
+                  ),
+                  Icon(Icons.shopping_cart_outlined,
+                      color: themeData.colorScheme.primary),
+                ],
+              ),
+              SizedBox(height: MySize.size10),
+              FutureBuilder<int>(
+                future: _getCartCountOnly(),
+                builder: (context, snapshot) {
+                  final count = snapshot.data ?? cartCount;
+                  return Text(
+                    '$count items',
+                    style: AppTheme.getTextStyle(
+                        themeData.textTheme.headlineSmall,
+                        fontWeight: 700,
+                        color: themeData.colorScheme.primary),
+                  );
+                },
+              ),
+              SizedBox(height: MySize.size8),
+              Text(
+                'Use this panel to move quickly from product browsing to checkout on tablet screens.',
+                style: AppTheme.getTextStyle(themeData.textTheme.bodyMedium,
+                    fontWeight: 500,
+                    color: themeData.colorScheme.onBackground,
+                    muted: true),
+              ),
+              SizedBox(height: MySize.size16),
+              FilledButton.icon(
+                onPressed: _openCartPage,
+                icon: Icon(Icons.shopping_bag_outlined),
+                label: Text('Open cart'),
+              ),
+              SizedBox(height: MySize.size8),
+              FilledButton.tonalIcon(
+                onPressed: _holdCurrentCart,
+                icon: Icon(MdiIcons.cartArrowDown),
+                label: Text('Hold cart'),
+              ),
+              SizedBox(height: MySize.size8),
+              FilledButton.tonalIcon(
+                onPressed: _showHeldOrdersBottomSheet,
+                icon: Icon(MdiIcons.pauseCircleOutline),
+                label: Text('Resume held order'),
+              ),
+              SizedBox(height: MySize.size8),
+              OutlinedButton.icon(
+                onPressed: () {
+                  setState(() {});
+                },
+                icon: Icon(Icons.refresh),
+                label: Text('Refresh count'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     themeData = Theme.of(context);
@@ -338,53 +598,55 @@ class _ProductsState extends State<Products> {
               child: IconButton(
                   icon: Icon(Icons.shopping_cart),
                   onPressed: () {
-                    if (argument != null) {
-                      Navigator.pushReplacementNamed(context, '/cart',
-                          arguments: Helper().argument(
-                              locId: argument!['locationId'],
-                              sellId: argument!['sellId']));
-                    } else {
-                      if (selectedLocationId != 0 && cartCount > 0) {
-                        Navigator.pushNamed(context, '/cart',
-                            arguments:
-                                Helper().argument(locId: selectedLocationId));
-                      }
-
-                      if (cartCount == 0) {
-                        Fluttertoast.showToast(
-                            msg: AppLocalizations.of(context)
-                                .translate('no_items_added_to_cart'));
-                      }
-                    }
+                    _openCartPage();
                   }),
-            )
+            ),
+            Badge(
+              badgeColor: themeData.colorScheme.primary,
+              shape: BadgeShape.circle,
+              borderRadius: BorderRadius.circular(MySize.size20!),
+              toAnimate: true,
+              position: BadgePosition.topStart(start: 5.0, top: 5.0),
+              badgeContent: FutureBuilder<int>(
+                  future: _getHeldOrderCountOnly(),
+                  builder: (context, snapshot) {
+                    final total = snapshot.data ?? 0;
+                    return Center(
+                      child:
+                          Text('$total', style: TextStyle(color: Colors.white)),
+                    );
+                  }),
+              child: IconButton(
+                icon: Icon(MdiIcons.pauseCircleOutline),
+                onPressed: _showHeldOrdersBottomSheet,
+              ),
+            ),
+            IconButton(
+              icon: Icon(MdiIcons.cartArrowDown),
+              tooltip: 'Hold current cart',
+              onPressed: _holdCurrentCart,
+            ),
           ],
         ),
         body: (canViewProducts)
-            ? ListView(
-                physics: ClampingScrollPhysics(),
-                controller: _scrollController,
-                padding: EdgeInsets.all(0),
-                children: [
-                  Visibility(
-                      visible: (selectedLocationId != 0),
-                      child: filter(
-                        _scaffoldKey,
-                      )),
-                  (selectedLocationId == 0)
-                      ? Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.location_on),
-                              Text(AppLocalizations.of(context)
-                                  .translate('please_set_a_location')),
-                            ],
-                          ),
-                        )
-                      : _productsList(),
-                ],
-              )
+            ? LayoutBuilder(builder: (context, constraints) {
+                final useWideLayout =
+                    constraints.maxWidth >= 1024 && selectedLocationId != 0;
+                if (!useWideLayout) {
+                  return _buildProductsBody();
+                }
+                return Row(
+                  children: [
+                    Expanded(
+                      child: _buildProductsBody(),
+                    ),
+                    SizedBox(
+                      width: constraints.maxWidth * 0.30,
+                      child: _buildCartSidePanel(),
+                    )
+                  ],
+                );
+              })
             : Center(
                 child: Text(
                   AppLocalizations.of(context).translate('unauthorised'),
@@ -803,9 +1065,18 @@ class _ProductsState extends State<Products> {
             ),
           ),
           InkWell(
-            onTap: () async {
-              var barcode = await Helper().barcodeScan();
-              await getScannedProduct(barcode);
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ContinuousScanner(
+                    onScan: (barcode) async {
+                      await getScannedProduct(barcode);
+                      return true;
+                    },
+                  ),
+                ),
+              );
             },
             child: Container(
               margin: EdgeInsets.only(left: MySize.size16!),
@@ -954,7 +1225,7 @@ class _ProductsState extends State<Products> {
         : Container(
             child: (gridView)
                 ? GridView.builder(
-              padding: EdgeInsets.only(
+                    padding: EdgeInsets.only(
                         bottom: MySize.size16!,
                         left: MySize.size16!,
                         right: MySize.size16!),
@@ -987,7 +1258,7 @@ class _ProductsState extends State<Products> {
                     },
                   )
                 : ListView.builder(
-              shrinkWrap: true,
+                    shrinkWrap: true,
                     physics: ClampingScrollPhysics(),
                     itemCount: products.length,
                     itemBuilder: (context, index) {

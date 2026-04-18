@@ -47,8 +47,8 @@ class SellDatabase {
 
   //fetch incomplete sellLine
   Future<List> getInCompleteLines(locationId, {sellId}) async {
-    String where = 'is_completed = 0';
-    if (sellId != null) where = 'sell_id = $sellId';
+    String where = 'is_completed = 0 AND (sell_id IS NULL OR sell_id = 0)';
+    if (sellId != null) where = 'sell_id = $sellId AND is_completed = 0';
 
     //get product last sync datetime
     String productLastSync = await System().getProductLastSync();
@@ -76,7 +76,8 @@ class SellDatabase {
     if (sellId != null) {
       where = 'sell_id = $sellId';
     } else {
-      where = 'is_completed = $isCompleted';
+      where =
+          'is_completed = $isCompleted AND (sell_id IS NULL OR sell_id = 0)';
     }
     final db = await dbProvider.database;
     List res = await db.rawQuery(
@@ -98,8 +99,16 @@ class SellDatabase {
   //update sell_lines after creating a sell
   Future<int> updateSellLine(value) async {
     final db = await dbProvider.database;
-    var response = await db
-        .update('sell_lines', value, where: 'is_completed = ?', whereArgs: [0]);
+    var response = await db.update('sell_lines', value,
+        where: 'is_completed = 0 AND (sell_id IS NULL OR sell_id = 0)');
+    return response;
+  }
+
+  //assign current open cart lines to a specific draft sell
+  Future<int> assignInCompleteLinesToSell(int sellId) async {
+    final db = await dbProvider.database;
+    var response = await db.update('sell_lines', {'sell_id': sellId},
+        where: 'is_completed = 0 AND (sell_id IS NULL OR sell_id = 0)');
     return response;
   }
 
@@ -199,8 +208,8 @@ class SellDatabase {
   //Delete all lines where is_completed = 0
   Future<int> deleteInComplete() async {
     final db = await dbProvider.database;
-    var response = await db
-        .delete('sell_lines', where: 'is_completed = ?', whereArgs: [0]);
+    var response = await db.delete('sell_lines',
+        where: 'is_completed = 0 AND (sell_id IS NULL OR sell_id = 0)');
     return response;
   }
 
@@ -210,13 +219,30 @@ class SellDatabase {
     if (sellId != null) {
       where = 'sell_id = $sellId';
     } else {
-      where = 'is_completed = 0';
+      where = 'is_completed = 0 AND (sell_id IS NULL OR sell_id = 0)';
     }
 
     final db = await dbProvider.database;
     var response = await db
         .rawQuery('SELECT COUNT(*) AS counts FROM sell_lines WHERE $where');
     return response[0]['counts'].toString();
+  }
+
+  //fetch hold orders with corresponding item counts
+  Future<List> getHeldSells({int? locationId}) async {
+    final db = await dbProvider.database;
+    String where = 'S.status = \'draft\' AND S.is_quotation = 0';
+    if (locationId != null) {
+      where += ' AND S.location_id = $locationId';
+    }
+
+    return await db.rawQuery('SELECT S.*, COUNT(SL.id) AS item_count '
+        'FROM sell AS S '
+        'LEFT JOIN sell_lines AS SL ON SL.sell_id = S.id AND SL.is_completed = 0 '
+        'WHERE $where '
+        'GROUP BY S.id '
+        'HAVING item_count > 0 '
+        'ORDER BY S.id DESC');
   }
 
   //delete a sell and corresponding sellLines from database

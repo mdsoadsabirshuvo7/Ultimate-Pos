@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:intl/intl.dart';
+
 import '../apis/sell.dart';
 import '../models/paymentDatabase.dart';
 import '../models/sellDatabase.dart';
@@ -93,28 +95,26 @@ class Sell {
         } else {
           var sell = jsonEncode({'sells': sale});
           var result = await SellApi().create(sell);
-          if (result != null) {
-            await SellDatabase().updateSells(element['id'], {
-              'is_synced': 1,
-              'transaction_id': result['transaction_id'],
-              'invoice_url': result['invoice_url']
-            });
-            if (result['payment_lines'] != null) {
-              //delete existing paymentLines with reference to sellId
-              await PaymentDatabase().delete(element['id']);
-              //update paymentId and isReturn for each sellPayment
-              result['payment_lines'].forEach((paymentLine) async {
-                await PaymentDatabase().store({
-                  'sell_id': element['id'],
-                  'method': paymentLine['method'],
-                  'amount': paymentLine['amount'],
-                  'note': paymentLine['note'],
-                  'payment_id': paymentLine['id'],
-                  'is_return': paymentLine['is_return'],
-                  'account_id': paymentLine['account_id']
-                });
+          await SellDatabase().updateSells(element['id'], {
+            'is_synced': 1,
+            'transaction_id': result['transaction_id'],
+            'invoice_url': result['invoice_url']
+          });
+          if (result['payment_lines'] != null) {
+            //delete existing paymentLines with reference to sellId
+            await PaymentDatabase().delete(element['id']);
+            //update paymentId and isReturn for each sellPayment
+            result['payment_lines'].forEach((paymentLine) async {
+              await PaymentDatabase().store({
+                'sell_id': element['id'],
+                'method': paymentLine['method'],
+                'amount': paymentLine['amount'],
+                'note': paymentLine['note'],
+                'payment_id': paymentLine['id'],
+                'is_return': paymentLine['is_return'],
+                'account_id': paymentLine['account_id']
               });
-            }
+            });
           }
         }
       }
@@ -263,6 +263,43 @@ class Sell {
     await SellDatabase().deleteInComplete();
   }
 
+  //save current open cart as a draft order and return draft sell id
+  Future<int?> holdCurrentCart({required int locationId}) async {
+    final openLines = await SellDatabase().get(isCompleted: 0);
+    if (openLines.isEmpty) {
+      return null;
+    }
+
+    final now = DateTime.now();
+    double total = 0.0;
+    for (final line in openLines) {
+      total += _toDouble(line['unit_price']) * _toDouble(line['quantity']);
+    }
+
+    final holdSell = await createSell(
+      invoiceNo: 'HOLD_${DateFormat('yyyyMMddHHmmss').format(now)}',
+      transactionDate: DateFormat('yyyy-MM-dd HH:mm:ss').format(now),
+      contactId: null,
+      locId: locationId,
+      taxId: 0,
+      discountType: 'fixed',
+      discountAmount: 0.00,
+      invoiceAmount: total,
+      changeReturn: 0.00,
+      pending: total,
+      saleNote: 'Held order',
+      staffNote: '',
+      shippingCharges: 0.00,
+      shippingDetails: '',
+      saleStatus: 'draft',
+      isQuotation: 0,
+    );
+
+    final holdSellId = await SellDatabase().storeSell(holdSell);
+    await SellDatabase().assignInCompleteLinesToSell(holdSellId);
+    return holdSellId;
+  }
+
   Future<String> cartItemCount({isCompleted, sellId}) async {
     return await SellDatabase()
         .countSellLines(isCompleted: isCompleted, sellId: sellId);
@@ -290,5 +327,15 @@ class Sell {
       'is_synced': 1,
     };
     return sale;
+  }
+
+  double _toDouble(dynamic value) {
+    if (value == null) {
+      return 0;
+    }
+    if (value is num) {
+      return value.toDouble();
+    }
+    return double.tryParse(value.toString()) ?? 0;
   }
 }

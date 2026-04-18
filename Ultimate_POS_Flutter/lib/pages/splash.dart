@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -9,6 +8,7 @@ import '../helpers/AppTheme.dart';
 import '../helpers/SizeConfig.dart';
 import '../helpers/otherHelpers.dart';
 import '../locale/MyLocalizations.dart';
+import '../models/system.dart';
 import '../pages/login.dart';
 
 // ignore: must_be_immutable
@@ -40,7 +40,8 @@ class Splash extends StatelessWidget {
                     Image.asset('assets/images/splash_screen.png'),
               ),
               Text(AppLocalizations.of(context).translate('welcome'),
-                  style: AppTheme.getTextStyle(themeData.textTheme.headlineMedium,
+                  style: AppTheme.getTextStyle(
+                      themeData.textTheme.headlineMedium,
                       color: themeData.colorScheme.onSurface)),
               ElevatedButton.icon(
                 onPressed: () async {
@@ -50,6 +51,7 @@ class Splash extends StatelessWidget {
                   if (prefs.getInt('userId') != null) {
                     USERID = prefs.getInt('userId');
                     Config.userId = USERID;
+                    await System().applyWebsiteFeatureSettings();
                     Helper().jobScheduler();
                     //Take to home page
                     Navigator.of(context).pushReplacementNamed('/home');
@@ -66,7 +68,7 @@ class Splash extends StatelessWidget {
                     shadowColor: themeData.colorScheme.primary),
               ),
               Visibility(
-                visible: Config().showRegister,
+                visible: Config.showRegister,
                 child: Padding(
                   padding: EdgeInsets.all(MySize.size10!),
                   child: GestureDetector(
