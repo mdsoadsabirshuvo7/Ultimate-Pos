@@ -8,7 +8,7 @@
                 <th>@lang('contact.customer')</th>
                 <th>@lang('lang_v1.payment_method')</th>
                 <th>@lang('sale.sale')</th>
-                <th>@lang('messages.action')</th>
+                <th class="not-export">@lang('messages.action')</th>
             </tr>
         </thead>
         <tfoot>

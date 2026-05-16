@@ -69,7 +69,9 @@ LANG = {
 "copy": "Copier", 
 "export_to_csv": "Exporter au format CSV", 
 "export_to_excel": "Exporter au format Excel", 
-"export_to_pdf": "Exporter au format PDF", 
+"export_to_pdf": "Exporter au format PDF",
+"portrait": "Portrait",
+"landscape": "Paysage",
 "print": "Imprimer", 
 "col_vis": "Visibilité de la colonne", 
 "search": "Recherche", 
@@ -145,4 +147,10 @@ LANG = {
     'name_length_exceeded': 'La longueur totale du Préfixe, Prénom, Deuxième prénom et Nom de famille ne peut pas dépasser 127 caractères.',
     'error': 'Erreur',
     'ok': 'OK',
+
+    // Calculator
+    'calculator': 'Calculatrice',
+    'calc_recent_calculations': 'Calculs récents',
+    'calc_no_calculations_yet': 'Pas encore de calculs',
+    'calc_clear_history': 'Effacer l\'historique'
 };

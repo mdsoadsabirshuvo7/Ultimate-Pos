@@ -122,8 +122,10 @@ class CashRegisterController extends Controller
 
         $payment_types = $this->cashRegisterUtil->payment_types(null, false, $business_id);
 
+        $due_applied_to_register = $this->cashRegisterUtil->getDuePaymentsForCurrentRegisterSales($id);
+
         return view('cash_register.register_details')
-                    ->with(compact('register_details', 'details', 'payment_types', 'close_time'));
+                    ->with(compact('register_details', 'details', 'payment_types', 'close_time', 'due_applied_to_register'));
     }
 
     /**
@@ -152,8 +154,10 @@ class CashRegisterController extends Controller
 
         $payment_types = $this->cashRegisterUtil->payment_types($register_details->location_id, true, $business_id);
 
+        $due_applied_to_register = $this->cashRegisterUtil->getDuePaymentsForCurrentRegisterSales();
+
         return view('cash_register.register_details')
-                ->with(compact('register_details', 'details', 'payment_types', 'close_time'));
+                ->with(compact('register_details', 'details', 'payment_types', 'close_time', 'due_applied_to_register'));
     }
 
     /**
@@ -183,8 +187,10 @@ class CashRegisterController extends Controller
 
         $pos_settings = ! empty(request()->session()->get('business.pos_settings')) ? json_decode(request()->session()->get('business.pos_settings'), true) : [];
 
+        $due_applied_to_register = $this->cashRegisterUtil->getDuePaymentsForCurrentRegisterSales($id);
+
         return view('cash_register.close_register_modal')
-                    ->with(compact('register_details', 'details', 'payment_types', 'pos_settings'));
+                    ->with(compact('register_details', 'details', 'payment_types', 'pos_settings', 'due_applied_to_register'));
     }
 
     /**

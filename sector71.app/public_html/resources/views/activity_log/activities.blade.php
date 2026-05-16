@@ -2,7 +2,7 @@
 <table class="table table-condensed">
     <tr>
         <th>@lang('lang_v1.date')</th>
-        <th>@lang('messages.action')</th>
+        <th class="not-export">@lang('messages.action')</th>
         <th>@lang('lang_v1.by')</th>
         <th>@lang('brand.note')</th>
     </tr>

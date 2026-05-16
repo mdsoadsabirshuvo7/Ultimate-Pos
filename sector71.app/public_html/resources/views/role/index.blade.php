@@ -39,7 +39,7 @@
                 <thead>
                     <tr>
                         <th>@lang( 'user.roles' )</th>
-                        <th>@lang( 'messages.action' )</th>
+                        <th class="not-export">@lang( 'messages.action' )</th>
                     </tr>
                 </thead>
             </table>

@@ -45,7 +45,7 @@
                         <th>@lang( 'restaurant.modifier_sets' )</th>
                         <th>@lang( 'restaurant.modifiers' )</th>
                         <th>@lang( 'restaurant.products' )</th>
-                        <th>@lang( 'messages.action' )</th>
+                        <th class="not-export">@lang( 'messages.action' )</th>
                     </tr>
                 </thead>
             </table>

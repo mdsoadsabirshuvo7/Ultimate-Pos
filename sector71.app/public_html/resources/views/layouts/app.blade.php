@@ -26,11 +26,6 @@
         name="viewport">
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="theme-color" content="#1d4ed8">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <link rel="manifest" href="{{ asset('manifest.json') }}">
-    <link rel="apple-touch-icon" href="{{ asset('img/logo-small.png') }}">
     
     <title>@yield('title') - {{ Session::get('business.name') }}</title>
 
@@ -164,9 +159,13 @@
 </style>
 <style>
     .small-view-side-active {
-        display: grid !important;
+        display: flex !important;
+        flex-direction: column;
         z-index: 1000;
-        position: absolute;
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
     }
     .overlay {
         width: 100vw;

@@ -60,7 +60,7 @@
                             <th>{{$payment_types['custom_pay_7']}}</th>
                             <th>@lang('cash_register.other_payments')</th>
                             <th>@lang('sale.total')</th>
-                            <th>@lang('messages.action')</th>
+                            <th class="not-export">@lang('messages.action')</th>
                         </tr>
                     </thead>
                     <tfoot>

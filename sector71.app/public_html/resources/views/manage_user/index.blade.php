@@ -35,7 +35,7 @@
                             <th>@lang( 'user.name' )</th>
                             <th>@lang( 'user.role' )</th>
                             <th>@lang( 'business.email' )</th>
-                            <th>@lang( 'messages.action' )</th>
+                            <th class="not-export">@lang( 'messages.action' )</th>
                         </tr>
                     </thead>
                 </table>

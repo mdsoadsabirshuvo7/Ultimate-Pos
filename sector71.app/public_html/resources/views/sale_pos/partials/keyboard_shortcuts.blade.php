@@ -4,7 +4,7 @@
 		@if(!empty($shortcuts["pos"]["express_checkout"]) && ($pos_settings['disable_express_checkout'] == 0))
 			Mousetrap.bind('{{$shortcuts["pos"]["express_checkout"]}}', function(e) {
 				e.preventDefault();
-				$('button.pos-express-finalize[data-pay_method="cash"]').trigger('click');
+				$('button.pos-express-finalize[data-pay_method="cash"]:visible').first().trigger('click');
 			});
 		@endif
 
@@ -12,7 +12,7 @@
 		@if(!empty($shortcuts["pos"]["cancel"]))
 			Mousetrap.bind('{{$shortcuts["pos"]["cancel"]}}', function(e) {
 				e.preventDefault();
-				$('#pos-cancel').trigger('click');
+				$('button.js-pos-cancel:visible').first().trigger('click');
 			});
 		@endif
 
@@ -28,7 +28,7 @@
 		@if(!empty($shortcuts["pos"]["pay_n_ckeckout"]) && ($pos_settings['disable_pay_checkout'] == 0))
 			Mousetrap.bind('{{$shortcuts["pos"]["pay_n_ckeckout"]}}', function(e) {
 				e.preventDefault();
-				$('#pos-finalize').trigger('click');
+				$('button.pos-finalize:visible').first().trigger('click');
 			});
 		@endif
 

@@ -8,7 +8,7 @@
 <table class="table table-bordered table-striped" id="stock_report_table">
     <thead>
         <tr>
-            <th>@lang('messages.action')</th>
+            <th class="not-export">@lang('messages.action')</th>
             <th>SKU</th>
             <th>@lang('business.product')</th>
             <th>@lang('lang_v1.variation')</th>

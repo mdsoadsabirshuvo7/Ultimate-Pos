@@ -1,12 +1,7 @@
 <div class="col-md-12">
-    <div class="box box-solid payment_row bg-lightgray">
+    <div class="box box-solid payment_row bg-lightgray tw-relative">
         @if ($removable)
-            <div class="box-header">
-                <div class="box-tools pull-right">
-                    <button type="button" class="btn btn-box-tool remove_payment_row"><i
-                            class="fa fa-times fa-2x"></i></button>
-                </div>
-            </div>
+            <button type="button" class="remove_payment_row tw-absolute tw-top-2 tw-right-2 tw-z-10 tw-p-2 tw-bg-transparent tw-border-0 tw-text-slate-400 hover:tw-text-red-600 tw-cursor-pointer tw-inline-flex tw-items-center tw-justify-center tw-leading-none active:tw-scale-95 tw-transition-colors" aria-label="Remove payment"><i class="fa fa-times"></i></button>
         @endif
 
         @if (!empty($payment_line['id']))

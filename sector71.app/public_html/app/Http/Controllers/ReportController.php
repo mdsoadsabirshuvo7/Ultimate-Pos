@@ -810,13 +810,8 @@ class ReportController extends Controller
                     if ($type == 'sell') {
                         foreach ($row->sell_lines as $sell_line) {
                             if ($sell_line->tax_id == $tax['id']) {
-
-                                // $tax_amount += ($sell_line->item_tax * ($sell_line->quantity - 
-                                // $sell_line->quantity_returned));
-
-                                $tax_for_one = $sell_line->quantity > 0 ? $sell_line->line_total_tax / $sell_line->quantity : 0;
-                                $tax_amount += ($tax_for_one * ($sell_line->quantity - $sell_line->quantity_returned));
-                                
+                                $tax_amount += ($sell_line->item_tax * ($sell_line->quantity - 
+                                $sell_line->quantity_returned));            
                             }
 
                             //break group tax

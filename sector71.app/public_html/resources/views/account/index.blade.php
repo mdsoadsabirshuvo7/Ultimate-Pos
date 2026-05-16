@@ -94,7 +94,7 @@
                                                             <th>@lang('lang_v1.balance')</th>
                                                             <th>@lang('lang_v1.account_details')</th>
                                                             <th>@lang('lang_v1.added_by')</th>
-                                                            <th>@lang('messages.action')</th>
+                                                            <th class="not-export">@lang('messages.action')</th>
                                                         </tr>
                                                     </thead>
                                                     <tfoot>
@@ -118,7 +118,7 @@
                                     <th>@lang('account.account_number')</th>
                                     <th>@lang( 'brand.note' )</th>
                                     <th>@lang('lang_v1.balance')</th>
-                                    <th>@lang( 'messages.action' )</th>
+                                    <th class="not-export">@lang( 'messages.action' )</th>
                                 </tr>
                             </thead>
                         </table>
@@ -141,7 +141,7 @@
                                                 <thead>
                                                     <tr>
                                                         <th>@lang('lang_v1.name')</th>
-                                                        <th>@lang('messages.action')</th>
+                                                        <th class="not-export">@lang('messages.action')</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>

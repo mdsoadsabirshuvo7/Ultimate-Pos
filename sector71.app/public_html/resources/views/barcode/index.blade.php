@@ -37,7 +37,7 @@
                     <tr>
                         <th>@lang('barcode.setting_name')</th>
                         <th>@lang('barcode.setting_description')</th>
-                        <th>@lang('messages.action')</th>
+                        <th class="not-export">@lang('messages.action')</th>
                     </tr>
                 </thead>
             </table>

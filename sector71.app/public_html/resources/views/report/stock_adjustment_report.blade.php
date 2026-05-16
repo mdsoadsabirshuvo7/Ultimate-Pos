@@ -93,7 +93,7 @@
                     <table class="table table-bordered table-striped" id="stock_adjustment_table">
                         <thead>
                             <tr>
-                                <th>@lang('messages.action')</th>
+                                <th class="not-export">@lang('messages.action')</th>
                                 <th>@lang('messages.date')</th>
                                 <th>@lang('purchase.ref_no')</th>
                                 <th>@lang('business.location')</th>

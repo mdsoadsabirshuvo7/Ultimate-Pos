@@ -105,7 +105,7 @@
                         <th>@lang('business.created_by')</th>
                         <th>@lang('lang_v1.invoices')</th>
                         @can('sell.delete')
-                            <th>@lang('messages.action')</th>
+                            <th class="not-export">@lang('messages.action')</th>
                         @endcan
                     </tr>
                 </thead>

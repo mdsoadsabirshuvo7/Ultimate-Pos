@@ -37,7 +37,7 @@
                         <tr>
                             <th>@lang( 'tax_rate.name' )</th>
                             <th>@lang( 'tax_rate.rate' )</th>
-                            <th>@lang( 'messages.action' )</th>
+                            <th class="not-export">@lang( 'messages.action' )</th>
                         </tr>
                     </thead>
                 </table>
@@ -78,7 +78,7 @@
                             <th>@lang( 'tax_rate.name' )</th>
                             <th>@lang( 'tax_rate.rate' )</th>
                             <th>@lang( 'tax_rate.sub_taxes' )</th>
-                            <th>@lang( 'messages.action' )</th>
+                            <th class="not-export">@lang( 'messages.action' )</th>
                         </tr>
                     </thead>
                 </table>

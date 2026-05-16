@@ -14,7 +14,5 @@ class CommonChart extends Chart
     public function __construct()
     {
         parent::__construct();
-        $this->height(250);
-        $this->loader(false);
     }
 }

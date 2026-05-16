@@ -62,6 +62,22 @@
                   </label>
                 </div>
               </div>
+              <div class="col-md-12">
+                <div class="checkbox">
+                  <label>
+                    {!! Form::checkbox('permissions[]', 'send_payment_received_notification', false,
+                    [ 'class' => 'input-icheck']); !!} {{ __( 'lang_v1.payment_received' ) }}
+                  </label>
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="checkbox">
+                  <label>
+                    {!! Form::checkbox('permissions[]', 'send_payment_reminder_notification', false,
+                    [ 'class' => 'input-icheck']); !!} {{ __( 'lang_v1.payment_reminder' ) }}
+                  </label>
+                </div>
+              </div>
           </div>
         </div>
         <hr>

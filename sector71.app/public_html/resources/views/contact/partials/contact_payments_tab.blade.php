@@ -7,7 +7,7 @@ id="contact_payments_table">
             <th>@lang('sale.amount')</th>
             <th>@lang('lang_v1.payment_method')</th>
             <th>@lang('account.payment_for')</th>
-            <th>@lang('messages.action')</th>
+            <th class="not-export">@lang('messages.action')</th>
         </tr>
     </thead>
     <tbody>

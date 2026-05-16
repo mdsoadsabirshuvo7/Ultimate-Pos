@@ -70,6 +70,8 @@ LANG = {
 'export_to_csv': 'Xuất sang CSV',
 'export_to_excel': 'Xuất sang Excel',
 'export_to_pdf': 'Xuất sang PDF',
+'portrait': 'Dọc',
+'landscape': 'Ngang',
 'print': 'In',
 'col_vis': 'Hiển thị cột',
 'search': 'Tìm kiếm',
@@ -165,4 +167,10 @@ LANG = {
     'name_length_exceeded': 'Tổng độ dài của Tiền tố, Tên, Tên đệm và Họ không được vượt quá 127 ký tự.',
     'error': 'Lỗi',
     'ok': 'OK',
+
+    // Calculator
+    'calculator': 'Máy tính',
+    'calc_recent_calculations': 'Tính toán gần đây',
+    'calc_no_calculations_yet': 'Chưa có tính toán',
+    'calc_clear_history': 'Xóa lịch sử'
 };

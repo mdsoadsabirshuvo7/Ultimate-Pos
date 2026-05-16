@@ -69,7 +69,9 @@ LANG = {
 "copy": "Kopiëren", 
 "export_to_csv": "Exporteren naar CSV", 
 "export_to_excel": "Exporteren naar Excel", 
-"export_to_pdf": "Exporteren naar PDF", 
+"export_to_pdf": "Exporteren naar PDF",
+"portrait": "Staand",
+"landscape": "Liggend",
 "print": "Afdrukken", 
 "col_vis": "Kolomzichtbaarheid", 
 "search": "Zoeken", 
@@ -145,4 +147,10 @@ LANG = {
     'name_length_exceeded': 'De totale lengte van Voorvoegsel, Voornaam, Tussenvoegsel en Achternaam mag niet meer dan 127 tekens bedragen.',
     'error': 'Fout',
     'ok': 'OK',
+
+    // Calculator
+    'calculator': 'Rekenmachine',
+    'calc_recent_calculations': 'Recente berekeningen',
+    'calc_no_calculations_yet': 'Nog geen berekeningen',
+    'calc_clear_history': 'Geschiedenis wissen'
 };

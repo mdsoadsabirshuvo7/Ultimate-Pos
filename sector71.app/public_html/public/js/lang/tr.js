@@ -69,7 +69,9 @@ LANG = {
 "copy" : "Kopyala", 
 "export_to_csv" : "CSV’ye Aktar", 
 "export_to_excel" : "Excel'e Aktar", 
-"export_to_pdf" : "PDF'ye Aktar", 
+"export_to_pdf" : "PDF'ye Aktar",
+"portrait" : "Dikey",
+"landscape" : "Yatay",
 "print" : "Yazdır", 
 "col_vis" : "Sütun görünürlüğü", 
 "search" : "Arama", 
@@ -145,4 +147,10 @@ LANG = {
     'name_length_exceeded': 'Önek, Ad, Orta Ad ve Soyadın toplam uzunluğu 127 karakteri aşamaz.',
     'error': 'Hata',
     'ok': 'Tamam',
+
+    // Calculator
+    'calculator': 'Hesap Makinesi',
+    'calc_recent_calculations': 'Son hesaplamalar',
+    'calc_no_calculations_yet': 'Henüz hesaplama yok',
+    'calc_clear_history': 'Geçmişi temizle'
 };

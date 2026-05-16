@@ -40,7 +40,7 @@
                         <th>@lang('lang_v1.shipping_charges')</th>
                         <th>@lang('stock_adjustment.total_amount')</th>
                         <th>@lang('purchase.additional_notes')</th>
-                        <th class="tw-w-full">@lang('messages.action')</th>
+                        <th class="tw-w-full not-export">@lang('messages.action')</th>
                     </tr>
                 </thead>
             </table>

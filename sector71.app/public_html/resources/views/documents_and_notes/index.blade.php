@@ -10,7 +10,7 @@
     <table class="table table-bordered table-striped" style="width: 100%;" id="documents_and_notes_table">
         <thead>
             <tr>
-                <th>@lang('messages.action')</th>
+                <th class="not-export">@lang('messages.action')</th>
                 <th>@lang('lang_v1.heading')</th>
                 <th>@lang('lang_v1.added_by')</th>
                 <th>@lang('lang_v1.created_at')</th>

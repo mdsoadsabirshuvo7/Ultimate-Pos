@@ -57,18 +57,19 @@ class BusinessController extends Controller
 
         $this->theme_colors = [
             'primary' => 'Blue',
-            // 'black' => 'Black',
-            'purple' => 'Purple',
-            'green' => 'Green',
-            'red' => 'Red',
-            'yellow' => 'Yellow',
-            'orange' => 'Orange',
-            'sky' => 'Sky',
-            // 'blue-light' => 'Blue Light',
-            // 'black-light' => 'Black Light',
-            // 'purple-light' => 'Purple Light',
-            // 'green-light' => 'Green Light',
-            // 'red-light' => 'Red Light',
+            'indigo'  => 'Indigo',
+            'violet'  => 'Violet',
+            'purple'  => 'Purple',
+            'teal'    => 'Teal',
+            'emerald' => 'Emerald',
+            'green'   => 'Green',
+            'sky'     => 'Sky',
+            'pink'    => 'Pink',
+            'rose'    => 'Rose',
+            'red'     => 'Red',
+            'orange'  => 'Orange',
+            'yellow'  => 'Yellow',
+            'slate'   => 'Slate',
         ];
 
         $this->mailDrivers = [

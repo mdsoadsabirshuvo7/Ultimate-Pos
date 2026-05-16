@@ -456,9 +456,10 @@ class ProductUtil extends Util
      * @param  int  $business_id
      * @param  int  $location_id
      * @param  bool  $check_qty (If false qty_available is not checked)
+     * @param  bool  $allow_zero_qty (If true, allow qty_available = 0 when $check_qty is true)
      * @return array
      */
-    public function getDetailsFromVariation($variation_id, $business_id, $location_id = null, $check_qty = true)
+    public function getDetailsFromVariation($variation_id, $business_id, $location_id = null, $check_qty = true, $allow_zero_qty = false)
     {
         $variation = Variation::with('media')->findOrFail($variation_id);
 
@@ -476,10 +477,14 @@ class ProductUtil extends Util
 
         //Add condition for check of quantity. (if stock is not enabled or qty_available > 0)
         if ($check_qty) {
-            $query->where(function ($query) {
-                $query->where('p.enable_stock', '!=', 1)
-                    ->orWhere('vld.qty_available', '>', 0);
-            });
+            //Default behavior: enforce positive qty when stock is enabled.
+            //Opt-in override: when $allow_zero_qty is true, allow qty_available = 0.
+            if (! $allow_zero_qty) {
+                $query->where(function ($query) {
+                    $query->where('p.enable_stock', '!=', 1)
+                        ->orWhere('vld.qty_available', '>', 0);
+                });
+            }
         }
 
         if (! empty($location_id) && $check_qty) {
@@ -1259,7 +1264,7 @@ class ProductUtil extends Util
             $updated_purchase_lines[] = $purchase_line;
 
             //Edit product price
-            if ($enable_product_editing == 1 && $transaction->type == 'purchase') {
+            if ($enable_product_editing == 1 && ($transaction->type == 'purchase' || $transaction->type == 'production_purchase')) {
                 if (isset($data['default_sell_price'])) {
                     $variation_data['sell_price_inc_tax'] = ($this->num_uf($data['default_sell_price'], $currency_details)) / $multiplier;
                 }
@@ -2156,6 +2161,12 @@ class ProductUtil extends Util
                     'stock_in_second_unit' => $this->roundQuantity($stock_in_second_unit),
                 ]);
             } elseif ($stock_line->transaction_type == 'production_purchase') {
+
+                // ISSUE: There is a data mismatch between the stock calculation in product history and the fix mismatch functionality because in getVariationStockMisMatch only received transactions are considered 
+                if ($stock_line->status != 'received') {
+                    continue;
+                }
+
                 $quantity_change = $stock_line->purchase_line_quantity;
                 $stock += $quantity_change;
                 $stock_history_array[] = array_merge($temp_array, [

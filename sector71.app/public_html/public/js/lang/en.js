@@ -69,6 +69,8 @@ LANG = {
     'export_to_csv': 'Export CSV',
     'export_to_excel': 'Export Excel',
     'export_to_pdf': 'Export PDF',
+    'portrait': 'Portrait',
+    'landscape': 'Landscape',
     'print': 'Print',
     'col_vis': 'Column visibility',
     'search': 'Search',
@@ -168,4 +170,10 @@ LANG = {
     'name_length_exceeded': 'The total length of Prefix, First, Middle & Last Name cannot exceed 127 characters.',
     'error': 'Error',
     'ok': 'OK',
+
+    // Calculator
+    'calculator': 'Calculator',
+    'calc_recent_calculations': 'Recent calculations',
+    'calc_no_calculations_yet': 'No calculations yet',
+    'calc_clear_history': 'Clear history'
 };

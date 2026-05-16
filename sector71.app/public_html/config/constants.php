@@ -26,14 +26,15 @@ return [
         'ce' => ['full_name' => 'Chinese', 'short_name' => 'Chinese'],
         'ro' => ['full_name' => 'Romanian', 'short_name' => 'Romanian'],
         'lo' => ['full_name' => 'Lao', 'short_name' => 'Lao'],
+        'he' => ['full_name' => 'Hebrew', 'short_name' => 'Hebrew'],
     ],
-    'langs_rtl' => ['ar'],
+    'langs_rtl' => ['ar', 'he'],
     'non_utf8_languages' => ['ar', 'hi', 'ps'],
 
     'document_size_limit' => '5000000', //in Bytes,
     'image_size_limit' => '5000000', //in Bytes
 
-    'asset_version' => 611,
+    'asset_version' => 612,
 
     'disable_purchase_in_other_currency' => true,
 

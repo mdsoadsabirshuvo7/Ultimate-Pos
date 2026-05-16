@@ -70,6 +70,8 @@ LANG = {
 'export_to_csv': 'Export în CSV',
 'export_to_excel': 'Exportați în Excel',
 'export_to_pdf': 'Export în PDF',
+'portrait': 'Portret',
+'landscape': 'Peisaj',
 'print': 'Imprimare',
 'col_vis': 'Vizibilitatea coloanei',
 'search': 'Căutare',
@@ -165,4 +167,10 @@ LANG = {
     'name_length_exceeded': 'Lungimea totală a Prefixului, Prenumelui, Numei de mijloc și Numei de familie nu poate depăși 127 de caractere.',
     'error': 'Eroare',
     'ok': 'OK',
+
+    // Calculator
+    'calculator': 'Calculator',
+    'calc_recent_calculations': 'Calcule recente',
+    'calc_no_calculations_yet': 'Niciun calcul încă',
+    'calc_clear_history': 'Șterge istoricul'
 };
