@@ -24,27 +24,32 @@
 			value="{{$so_line->id}}">
 		@endif
 		@php
-			$product_name = e($product->product_name) . '<br/>' . $product->sub_sku ;
-			if(!empty($product->brand)){ $product_name .= ' ' . $product->brand ;}
+			$product_name = e($product->product_name);
+			$product_sku_brand = $product->sub_sku;
+			if(!empty($product->brand)){ $product_sku_brand .= ' · ' . e($product->brand); }
 		@endphp
 
-		@if( ($edit_price || $edit_discount) && empty($is_direct_sell) )
-		<div title="@lang('lang_v1.pos_edit_product_price_help')" style="display: inline">
-		<span class="text-link text-info cursor-pointer" data-toggle="modal" data-target="#row_edit_product_price_modal_{{$row_count}}">
-			{!! $product_name !!}
-			&nbsp;<i class="fa fa-info-circle"></i>
-		</span>
+		<div style="display:flex;align-items:flex-start;gap:6px;">
+			<img src="@if(count($product->media) > 0)
+							{{$product->media->first()->display_url}}
+						@elseif(!empty($product->product_image))
+							{{asset('/uploads/img/' . rawurlencode($product->product_image))}}
+						@else
+							{{asset('/img/default.png')}}
+						@endif" alt="product-img" loading="lazy" style="width:36px;height:36px;flex-shrink:0;border-radius:4px;object-fit:cover;align-self:flex-start;margin-top:1px;" onerror="this.style.display='none'">
+			<div style="min-width:0;flex:1;">
+				@if( ($edit_price || $edit_discount) && empty($is_direct_sell) )
+				<div title="@lang('lang_v1.pos_edit_product_price_help')">
+				<span class="text-link text-info tw-cursor-pointer tw-font-semibold tw-text-[13px] tw-leading-snug tw-block tw-truncate md:tw-truncate" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;" data-toggle="modal" data-target="#row_edit_product_price_modal_{{$row_count}}">
+					{!! $product_name !!} &nbsp;<i class="fa fa-info-circle"></i>
+				</span>
+				</div>
+				@else
+					<span class="tw-font-semibold tw-text-[13px] tw-leading-snug tw-block" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{!! $product_name !!}</span>
+				@endif
+				<div class="tw-text-[11px] tw-text-slate-400 tw-leading-[1.3] tw-truncate">{{ $product_sku_brand }}@if($product->enable_stock) &nbsp;·&nbsp; {{ @num_format($product->qty_available) }} {{$product->unit}}@endif</div>
+			</div>
 		</div>
-		@else
-			{!! $product_name !!}
-		@endif
-		<img src="@if(count($product->media) > 0)
-						{{$product->media->first()->display_url}}
-					@elseif(!empty($product->product_image))
-						{{asset('/uploads/img/' . rawurlencode($product->product_image))}}
-					@else
-						{{asset('/img/default.png')}}
-					@endif" alt="product-img" loading="lazy"style="height:50px;display: inline;margin-left: 3px; border: black;border-radius: 5px; margin-top: 5px; width: 50px;object-fit: cover;">
 
 
 		<input type="hidden" class="enable_sr_no" value="{{$product->enable_sr_no}}">
@@ -113,15 +118,6 @@
 			@include('sale_pos.partials.row_edit_product_price_modal')
 		</div> 
 		@endif
-<br>
-		<small class="text-muted p-1">
-			@if($product->enable_stock)
-			{{ @num_format($product->qty_available) }} {{$product->unit}} @lang('lang_v1.in_stock')
-			@else
-				--
-			@endif
-		</small>
-
 		<!-- Description modal end -->
 		@if(in_array('modifiers' , $enabled_modules))
 			<div class="modifiers_html">
@@ -202,7 +198,7 @@
 	@endif
 	</td>
 
-	<td>
+	<td class="v-center">
 		{{-- If edit then transaction sell lines will be present --}}
 		@if(!empty($product->transaction_sell_lines_id))
 			<input type="hidden" name="products[{{$row_count}}][transaction_sell_lines_id]" class="form-control" value="{{$product->transaction_sell_lines_id}}">
@@ -246,30 +242,29 @@
         	@endif
         @endforeach
 		<div class="input-group input-number">
-			<span class="input-group-btn"><button type="button" class="btn btn-default btn-flat quantity-down"><i class="fa fa-minus text-danger"></i></button></span>
-		<input type="text" data-min="1" style="width: auto"
-			class="form-control pos_quantity input_number mousetrap input_quantity" 
-			value="{{@format_quantity($product->quantity_ordered)}}" name="products[{{$row_count}}][quantity]" data-allow-overselling="@if(empty($pos_settings['allow_overselling'])){{'false'}}@else{{'true'}}@endif" 
-			@if($allow_decimal) 
-				data-decimal=1 
-			@else 
-				data-decimal=0 
-				data-rule-abs_digit="true" 
-				data-msg-abs_digit="@lang('lang_v1.decimal_value_not_allowed')" 
-			@endif
-			data-rule-required="true" 
-			data-msg-required="@lang('validation.custom-messages.this_field_is_required')" 
-			@if($product->enable_stock && empty($pos_settings['allow_overselling']) && empty($is_sales_order) )
-				data-rule-max-value="{{$max_qty_rule}}" data-qty_available="{{$product->qty_available}}" data-msg-max-value="{{$max_qty_msg}}" 
-				data-msg_max_default="@lang('validation.custom-messages.quantity_not_available', ['qty'=> $product->formatted_qty_available, 'unit' => $product->unit  ])" 
-			@endif 
-		>
-		<span class="input-group-btn"><button type="button" class="btn btn-default btn-flat quantity-up"><i class="fa fa-plus text-success"></i></button></span>
+			<span class="input-group-btn !tw-hidden md:!tw-table-cell"><button type="button" class="btn quantity-down !tw-text-red-600 active:tw-scale-95 tw-transition-transform !tw-border-slate-300 !tw-px-3 tw-inline-flex tw-items-center tw-justify-center tw-leading-none"><i class="fa fa-minus"></i></button></span>
+			<input type="text" data-min="1"
+				class="form-control pos_quantity input_number mousetrap input_quantity tw-text-center tw-font-bold !tw-w-full md:!tw-w-auto"
+				value="{{@format_quantity($product->quantity_ordered)}}" name="products[{{$row_count}}][quantity]" data-allow-overselling="@if(empty($pos_settings['allow_overselling'])){{'false'}}@else{{'true'}}@endif"
+				@if($allow_decimal)
+					data-decimal=1
+				@else
+					data-decimal=0
+					data-rule-abs_digit="true"
+					data-msg-abs_digit="@lang('lang_v1.decimal_value_not_allowed')"
+				@endif
+				data-rule-required="true"
+				data-msg-required="@lang('validation.custom-messages.this_field_is_required')"
+				@if($product->enable_stock && empty($pos_settings['allow_overselling']) && empty($is_sales_order) )
+					data-rule-max-value="{{$max_qty_rule}}" data-qty_available="{{$product->qty_available}}" data-msg-max-value="{{$max_qty_msg}}"
+					data-msg_max_default="@lang('validation.custom-messages.quantity_not_available', ['qty'=> $product->formatted_qty_available, 'unit' => $product->unit  ])"
+				@endif
+			>
+			<span class="input-group-btn !tw-hidden md:!tw-table-cell"><button type="button" class="btn quantity-up !tw-text-emerald-600 active:tw-scale-95 tw-transition-transform !tw-border-slate-300 !tw-px-3 tw-inline-flex tw-items-center tw-justify-center tw-leading-none"><i class="fa fa-plus"></i></button></span>
 		</div>
 		
 		<input type="hidden" name="products[{{$row_count}}][product_unit_id]" value="{{$product->unit_id}}">
-		@if(count($sub_units) > 0)
-			<br>
+		@if(count($sub_units) > 1)
 			<select name="products[{{$row_count}}][sub_unit_id]" class="form-control input-sm sub_unit">
                 @foreach($sub_units as $key => $value)
                     <option value="{{$key}}" data-multiplier="{{$value['multiplier']}}" data-unit_name="{{$value['name']}}" data-allow_decimal="{{$value['allow_decimal']}}" @if(!empty($product->sub_unit_id) && $product->sub_unit_id == $key) selected @endif>
@@ -277,8 +272,12 @@
                     </option>
                 @endforeach
            </select>
+		@elseif(count($sub_units) == 1)
+			@php $_su_key = array_key_first($sub_units); $_su = $sub_units[$_su_key]; @endphp
+			<input type="hidden" name="products[{{$row_count}}][sub_unit_id]" value="{{$_su_key}}">
+			<span class="pos-unit-label tw-inline-block tw-text-[11px] tw-font-medium tw-text-[#64748b] tw-mt-0.5 tw-leading-[1.2] tw-whitespace-nowrap">{{$_su['name']}}</span>
 		@else
-			{{$product->unit}}
+			<span class="pos-unit-label tw-inline-block tw-text-[11px] tw-font-medium tw-text-[#64748b] tw-mt-0.5 tw-leading-[1.2] tw-whitespace-nowrap">{{$product->unit}}</span>
 		@endif
 
 		@if(!empty($product->second_unit))
@@ -414,6 +413,8 @@
 		<span class="display_currency pos_line_total_text @if(!empty($pos_settings['is_pos_subtotal_editable'])) hide @endif" data-currency_symbol="true">{{$product->quantity_ordered*$unit_price_inc_tax}}</span>
 	</td>
 	<td class="text-center v-center">
-		<i class="fa fa-times text-danger pos_remove_row cursor-pointer" aria-hidden="true"></i>
+		<button type="button" class="pos_remove_row tw-w-9 tw-h-9 tw-rounded-full tw-bg-red-100 tw-text-red-600 hover:tw-bg-red-200 active:tw-scale-95 tw-transition-transform tw-inline-flex tw-items-center tw-justify-center tw-border-0 tw-cursor-pointer tw-mx-auto" aria-label="Remove item">
+			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7l16 0"/><path d="M10 11l0 6"/><path d="M14 11l0 6"/><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"/><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"/></svg>
+		</button>
 	</td>
 </tr>

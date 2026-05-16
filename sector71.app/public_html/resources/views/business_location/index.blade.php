@@ -48,7 +48,7 @@
                         <th>@lang( 'invoice.invoice_scheme' )</th>
                         <th>@lang('lang_v1.invoice_layout_for_pos')</th>
                         <th>@lang('lang_v1.invoice_layout_for_sale')</th>
-                        <th>@lang( 'messages.action' )</th>
+                        <th class="not-export">@lang( 'messages.action' )</th>
                     </tr>
                 </thead>
             </table>

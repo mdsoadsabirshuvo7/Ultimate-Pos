@@ -42,7 +42,7 @@
                         <th>@lang('printer.ip_address')</th>
                         <th>@lang('printer.port')</th>
                         <th>@lang('printer.path')</th>
-                        <th>@lang('messages.action')</th>
+                        <th class="not-export">@lang('messages.action')</th>
                     </tr>
                 </thead>
             </table>

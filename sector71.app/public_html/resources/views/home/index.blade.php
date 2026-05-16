@@ -3,7 +3,7 @@
 
 @section('content')
 
-    <div class="tw-pb-6 tw-bg-gradient-to-r tw-from-@if(!empty(session('business.theme_color'))){{session('business.theme_color')}}@else{{'primary'}}@endif-800 tw-to-@if(!empty(session('business.theme_color'))){{session('business.theme_color')}}@else{{'primary'}}@endif-900 xl:tw-pb-0 ">
+    <div class="tw-pb-6 theme-header-bg xl:tw-pb-0 ">
         <div class="tw-px-5 tw-pt-3">
             {{-- <div class="sm:tw-flex sm:tw-items-center sm:tw-justify-between sm:tw-gap-12">
                 <h1 class="tw-text-2xl tw-font-medium tw-tracking-tight tw-text-white">
@@ -213,9 +213,8 @@
             @if ($is_admin)
                 <div class="tw-relative">
                     <div class="tw-absolute tw-inset-0 tw-grid" aria-hidden="true">
-                        <div class="tw-bg-gradient-to-r tw-from-@if(!empty(session('business.theme_color'))){{session('business.theme_color')}}@else{{'primary'}}@endif-800 tw-to-@if(!empty(session('business.theme_color'))){{session('business.theme_color')}}@else{{'primary'}}@endif-900"></div>
-                        <div class="tw-bg-gradient-to-r tw-from-@if(!empty(session('business.theme_color'))){{session('business.theme_color')}}@else{{'primary'}}@endif-800 tw-to-@if(!empty(session('business.theme_color'))){{session('business.theme_color')}}@else{{'primary'}}@endif-900 xl:tw-bg-none xl:tw-bg-gray-100">
-                        </div>
+                        <div class="theme-header-bg"></div>
+                        <div class="tw-hidden sm:tw-block tw-bg-gray-100"></div>
                     </div>
                     <div class="tw-px-5 tw-isolate">
                         <div
@@ -496,7 +495,7 @@
                                                     <th>@lang('contact.customer')</th>
                                                     <th>@lang('sale.invoice_no')</th>
                                                     <th>@lang('home.due_amount')</th>
-                                                    <th>@lang('messages.action')</th>
+                                                    <th class="not-export">@lang('messages.action')</th>
                                                 </tr>
                                             </thead>
                                         </table>
@@ -553,7 +552,7 @@
                                                     <th>@lang('purchase.supplier')</th>
                                                     <th>@lang('purchase.ref_no')</th>
                                                     <th>@lang('home.due_amount')</th>
-                                                    <th>@lang('messages.action')</th>
+                                                    <th class="not-export">@lang('messages.action')</th>
                                                 </tr>
                                             </thead>
                                         </table>
@@ -709,7 +708,7 @@
                                             id="sales_order_table">
                                             <thead>
                                                 <tr>
-                                                    <th>@lang('messages.action')</th>
+                                                    <th class="not-export">@lang('messages.action')</th>
                                                     <th>@lang('messages.date')</th>
                                                     <th>@lang('restaurant.order_no')</th>
                                                     <th>@lang('sale.customer_name')</th>
@@ -777,7 +776,7 @@
                                             id="purchase_requisition_table" style="width: 100%;">
                                             <thead>
                                                 <tr>
-                                                    <th>@lang('messages.action')</th>
+                                                    <th class="not-export">@lang('messages.action')</th>
                                                     <th>@lang('messages.date')</th>
                                                     <th>@lang('purchase.ref_no')</th>
                                                     <th>@lang('purchase.location')</th>
@@ -839,7 +838,7 @@
                                             id="purchase_order_table" style="width: 100%;">
                                             <thead>
                                                 <tr>
-                                                    <th>@lang('messages.action')</th>
+                                                    <th class="not-export">@lang('messages.action')</th>
                                                     <th>@lang('messages.date')</th>
                                                     <th>@lang('purchase.ref_no')</th>
                                                     <th>@lang('purchase.location')</th>
@@ -900,7 +899,7 @@
                                         <table class="table table-bordered table-striped ajax_view" id="shipments_table">
                                             <thead>
                                                 <tr>
-                                                    <th>@lang('messages.action')</th>
+                                                    <th class="not-export">@lang('messages.action')</th>
                                                     <th>@lang('messages.date')</th>
                                                     <th>@lang('sale.invoice_no')</th>
                                                     <th>@lang('sale.customer_name')</th>

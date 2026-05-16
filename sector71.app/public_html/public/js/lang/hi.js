@@ -69,7 +69,9 @@ LANG = {
 "copy": "कॉपी", 
 "export_to_csv": "सीएसवी को निर्यात", 
 "export_to_excel": "एक्सेल में भेजे", 
-"export_to_pdf": "पीडीएफ को निर्यात", 
+"export_to_pdf": "पीडीएफ को निर्यात",
+"portrait": "पोर्ट्रेट",
+"landscape": "लैंडस्केप",
 "print": "प्रिंट", 
 "col_vis": "कॉलम दृश्यता", 
 "search": "खोज", 
@@ -145,4 +147,10 @@ LANG = {
     'name_length_exceeded': 'उपसर्ग, प्रथम, मध्य और अंतिम नाम की कुल लंबाई 127 वर्णों से अधिक नहीं हो सकती।',
     'error': 'त्रुटि',
     'ok': 'ठीक',
+
+    // Calculator
+    'calculator': 'कैलकुलेटर',
+    'calc_recent_calculations': 'हाल की गणनाएं',
+    'calc_no_calculations_yet': 'अभी तक कोई गणना नहीं',
+    'calc_clear_history': 'इतिहास साफ करें'
 };

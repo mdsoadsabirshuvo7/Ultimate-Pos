@@ -38,7 +38,7 @@
                         <tr>
                             <th>@lang('product.variations')</th>
                             <th>@lang('lang_v1.values')</th>
-                            <th>@lang('messages.action')</th>
+                            <th class="not-export">@lang('messages.action')</th>
                         </tr>
                     </thead>
                 </table>

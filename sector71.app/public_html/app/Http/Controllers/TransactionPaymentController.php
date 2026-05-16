@@ -8,6 +8,7 @@ use App\Events\TransactionPaymentUpdated;
 use App\Exceptions\AdvanceBalanceNotAvailable;
 use App\Transaction;
 use App\TransactionPayment;
+use App\Utils\CashRegisterUtil;
 use App\Utils\ModuleUtil;
 use App\Utils\TransactionUtil;
 use Datatables;
@@ -20,16 +21,19 @@ class TransactionPaymentController extends Controller
 
     protected $moduleUtil;
 
+    protected $cashRegisterUtil;
+
     /**
      * Constructor
      *
      * @param  TransactionUtil  $transactionUtil
      * @return void
      */
-    public function __construct(TransactionUtil $transactionUtil, ModuleUtil $moduleUtil)
+    public function __construct(TransactionUtil $transactionUtil, ModuleUtil $moduleUtil, CashRegisterUtil $cashRegisterUtil)
     {
         $this->transactionUtil = $transactionUtil;
         $this->moduleUtil = $moduleUtil;
+        $this->cashRegisterUtil = $cashRegisterUtil;
     }
 
     /**
@@ -547,6 +551,12 @@ class TransactionPaymentController extends Controller
             $business_id = request()->session()->get('business.id');
             $tp = $this->transactionUtil->payContact($request);
 
+            // Record advance/due payment in the open cash register when called from POS.
+            // Uses transaction_type='advance_payment' to distinguish from regular sell payments.
+            if ($request->input('from_pos')) {
+                $this->cashRegisterUtil->addAdvancePayment($tp);
+            }
+
             $pos_settings = ! empty(session()->get('business.pos_settings')) ? json_decode(session()->get('business.pos_settings'), true) : [];
             $enable_cash_denomination_for_payment_methods = ! empty($pos_settings['enable_cash_denomination_for_payment_methods']) ? $pos_settings['enable_cash_denomination_for_payment_methods'] : [];
             //add cash denomination
@@ -579,6 +589,10 @@ class TransactionPaymentController extends Controller
             $output = ['success' => false,
                 'msg' => 'File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage(),
             ];
+        }
+
+        if ($request->input('from_pos')) {
+            return response()->json($output);
         }
 
         return redirect()->back()->with(['status' => $output]);

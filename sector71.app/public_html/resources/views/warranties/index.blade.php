@@ -33,7 +33,7 @@
                         <th>@lang('lang_v1.name')</th>
                         <th>@lang('lang_v1.description')</th>
                         <th>@lang('lang_v1.duration')</th>
-                        <th>@lang('messages.action')</th>
+                        <th class="not-export">@lang('messages.action')</th>
                     </tr>
                 </thead>
             </table>

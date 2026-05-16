@@ -70,6 +70,8 @@ LANG = {
 'export_to_csv': 'ສົ່ງອອກເປັນ CSV',
 'export_to_excel': 'ສົ່ງອອກໄປຍັງ Excel',
 'export_to_pdf': 'ສົ່ງອອກເປັນ PDF',
+'portrait': 'ແນວຕັ້ງ',
+'landscape': 'ແນວນອນ',
 'print': 'ພິມ',
 'col_vis': 'ການເບິ່ງເຫັນຖັນ',
 'search': 'ຄົ້ນຫາ',
@@ -165,4 +167,10 @@ LANG = {
     'name_length_exceeded': 'ຄວາມຍາວລວມຂອງຄຳນຳໜ້າ, ຊື່ຕົ້ນ, ກາງ ແລະ ຊື່ສຸດທ້າຍບໍ່ສາມາດເກີນ 127 ຕົວອັກສອນ.',
     'error': 'ຂໍ້ຜິດພາດ',
     'ok': 'ຕົກລົງ',
+
+    // Calculator
+    'calculator': 'ເຄື່ອງຄິດໄລ່',
+    'calc_recent_calculations': 'ການຄຳນວນຫຼ້າສຸດ',
+    'calc_no_calculations_yet': 'ຍັງບໍ່ມີການຄຳນວນ',
+    'calc_clear_history': 'ລຶບປະຫວັດ'
 };

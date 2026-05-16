@@ -35,7 +35,7 @@
                     <tr>
                         <th>@lang( 'expense.category_name' )</th>
                         <th>@lang( 'expense.category_code' )</th>
-                        <th>@lang( 'messages.action' )</th>
+                        <th class="not-export">@lang( 'messages.action' )</th>
                     </tr>
                 </thead>
             </table>

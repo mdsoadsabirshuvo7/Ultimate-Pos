@@ -10,7 +10,7 @@
                 <th>@lang('purchase.payment_status')</th>
                 <th>@lang('sale.total_amount')</th>
                 <th>@lang('purchase.payment_due')</th>
-                <th>@lang('messages.action')</th>
+                <th class="not-export">@lang('messages.action')</th>
             </tr>
         </thead>
         <tfoot>

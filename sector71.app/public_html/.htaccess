@@ -1,8 +1,5 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
-    # Redirect legacy docs URL to external documentation
-    RewriteRule ^docs(/.*)?$ https://ultimatefosters.com/docs/ultimate-fosters-shop/ [R=302,L,NC]
-
     RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>

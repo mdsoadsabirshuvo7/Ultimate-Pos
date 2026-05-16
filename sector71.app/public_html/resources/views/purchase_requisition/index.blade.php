@@ -77,7 +77,7 @@
             <table class="table table-bordered table-striped ajax_view" id="purchase_requisition_table" style="width: 100%;">
                 <thead>
                     <tr>
-                        <th>@lang('messages.action')</th>
+                        <th class="not-export">@lang('messages.action')</th>
                         <th>@lang('messages.date')</th>
                         <th>@lang('purchase.ref_no')</th>
                         <th>@lang('purchase.location')</th>

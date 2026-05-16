@@ -41,7 +41,7 @@
 	<div class="box-body">
 	<div class="row">
 		<div class="col-md-12">
-			<div class="eq-height-row" id="product_list_body"></div>
+			<div class="eq-height-row tw-max-h-[calc(100vh_-_229px)] tw-overflow-y-auto tw-overflow-x-hidden" id="product_list_body"></div>
 		</div>
 		<div class="col-md-12 text-center" id="suggestion_page_loader" style="display: none;">
 			<i class="fa fa-spinner fa-spin fa-2x"></i>

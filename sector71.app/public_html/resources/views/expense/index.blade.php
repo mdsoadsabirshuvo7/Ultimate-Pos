@@ -108,7 +108,7 @@
                     <table class="table table-bordered table-striped" id="expense_table">
                         <thead>
                             <tr>
-                                <th>@lang('messages.action')</th>
+                                <th class="not-export">@lang('messages.action')</th>
                                 <th>@lang('messages.date')</th>
                                 <th>@lang('purchase.ref_no')</th>
                                 <th>@lang('lang_v1.recur_details')</th>

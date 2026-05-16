@@ -37,7 +37,7 @@
             				<th>@lang( 'restaurant.table' )</th>
                             <th>@lang( 'purchase.business_location' )</th>
             				<th>@lang( 'restaurant.description' )</th>
-            				<th>@lang( 'messages.action' )</th>
+            				<th class="not-export">@lang( 'messages.action' )</th>
             			</tr>
             		</thead>
             	</table>
@@ -76,7 +76,7 @@
                                 <th>@lang('restaurant.table')</th>
                                 <th>@lang('purchase.business_location')</th>
                                 <th>@lang('restaurant.description')</th>
-                                <th>@lang('messages.action')</th>
+                                <th class="not-export">@lang('messages.action')</th>
                             </tr>
                         </thead>
                     </table>

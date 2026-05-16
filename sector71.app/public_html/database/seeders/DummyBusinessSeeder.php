@@ -48,14 +48,20 @@ class DummyBusinessSeeder extends Seeder
 
         $prefixes = '{"purchase":"PO","stock_transfer":"ST","stock_adjustment":"SA","sell_return":"CN","expense":"EP","contacts":"CO","purchase_payment":"PP","sell_payment":"SP","business_location":"BL"}';
 
-        $business = [
-            ['id' => '1', 'name' => 'Awesome Shop', 'currency_id' => '2', 'start_date' => '2018-01-01', 'tax_number_1' => '3412569900', 'tax_label_1' => 'GSTIN', 'tax_number_2' => null, 'tax_label_2' => null, 'default_sales_tax' => null, 'default_profit_percent' => '25.00', 'owner_id' => '1', 'time_zone' => 'America/Phoenix', 'fy_start_month' => '1', 'accounting_method' => 'fifo', 'default_sales_discount' => '10.00', 'sell_price_tax' => 'includes', 'logo' => null, 'sku_prefix' => 'AS', 'enable_product_expiry' => '0', 'expiry_type' => 'add_expiry', 'on_product_expiry' => 'keep_selling', 'stop_selling_before' => '0', 'enable_tooltip' => '1', 'purchase_in_diff_currency' => '0', 'purchase_currency_id' => null, 'p_exchange_rate' => '1.000', 'transaction_edit_days' => '30', 'stock_expiry_alert_days' => '30', 'keyboard_shortcuts' => $shortcuts, 'pos_settings' => '{"disable_pay_checkout":0,"disable_draft":0,"disable_express_checkout":0,"hide_product_suggestion":0,"hide_recent_trans":0,"disable_discount":0,"disable_order_tax":0, "customer_display_screen":1, "display_screen_heading":"<h2 style=\"text-align: center;\">Welcome<\/h2>", "carousel_image_1":"1744193481_20662.jpg","carousel_image_2":"1744193481_9195778.jpg","carousel_image_4":"1744193481_14928.jpg","carousel_image_5":"1744193481_14931.jpg"}', 'enable_brand' => '1', 'enable_category' => '1', 'enable_sub_category' => '1', 'enable_price_tax' => '1', 'enable_purchase_status' => '1', 'enable_lot_number' => '0', 'default_unit' => null, 'enable_racks' => '0', 'enable_row' => '0', 'enable_position' => '0', 'enable_editing_product_from_purchase' => '1', 'sales_cmsn_agnt' => null, 'item_addition_method' => '1', 'enable_inline_tax' => '1', 'currency_symbol_placement' => 'before', 'enabled_modules' => '["purchases","add_sale","pos_sale","stock_transfers","stock_adjustment","expenses","account"]', 'date_format' => 'm/d/Y', 'time_format' => '24', 'repair_settings' => null, 'ref_no_prefixes' => $prefixes, 'created_at' => '2018-01-04 02:15:19', 'updated_at' => '2018-01-04 02:17:08', 'common_settings' => null],
-            ['id' => '2', 'name' => 'Awesome Pharmacy', 'currency_id' => '2', 'start_date' => '2018-04-10', 'tax_number_1' => '3412569900', 'tax_label_1' => 'VAT', 'tax_number_2' => null, 'tax_label_2' => null, 'default_sales_tax' => null, 'default_profit_percent' => '25.00', 'owner_id' => '4', 'time_zone' => 'America/Chicago', 'fy_start_month' => '1', 'accounting_method' => 'fifo', 'default_sales_discount' => null, 'sell_price_tax' => 'includes', 'logo' => null, 'sku_prefix' => 'AP', 'enable_product_expiry' => '1', 'expiry_type' => 'add_manufacturing', 'on_product_expiry' => 'stop_selling', 'stop_selling_before' => '0', 'enable_tooltip' => '1', 'purchase_in_diff_currency' => '0', 'purchase_currency_id' => null, 'p_exchange_rate' => '1.000', 'transaction_edit_days' => '30', 'stock_expiry_alert_days' => '30', 'keyboard_shortcuts' => $shortcuts, 'pos_settings' => null, 'enable_brand' => '1', 'enable_category' => '1', 'enable_sub_category' => '1', 'enable_price_tax' => '1', 'enable_purchase_status' => '1', 'enable_lot_number' => '1', 'default_unit' => '4', 'enable_racks' => '0', 'enable_row' => '0', 'enable_position' => '0', 'enable_editing_product_from_purchase' => '1', 'sales_cmsn_agnt' => null, 'item_addition_method' => '1', 'enable_inline_tax' => '0', 'currency_symbol_placement' => 'before', 'enabled_modules' => '["purchases","add_sale","pos_sale","stock_transfers","stock_adjustment","expenses","account"]', 'date_format' => 'm/d/Y', 'time_format' => '24', 'repair_settings' => null, 'ref_no_prefixes' => $prefixes, 'created_at' => '2018-04-10 08:12:40', 'updated_at' => '2018-04-10 10:21:38', 'common_settings' => null],
-            ['id' => '3', 'name' => 'Ultimate Electronics', 'currency_id' => '2', 'start_date' => '2018-04-10', 'tax_number_1' => '12548555003', 'tax_label_1' => 'GST', 'tax_number_2' => null, 'tax_label_2' => null, 'default_sales_tax' => null, 'default_profit_percent' => '25.00', 'owner_id' => '5', 'time_zone' => 'America/Chicago', 'fy_start_month' => '1', 'accounting_method' => 'fifo', 'default_sales_discount' => null, 'sell_price_tax' => 'includes', 'logo' => null, 'sku_prefix' => 'AE', 'enable_product_expiry' => '0', 'expiry_type' => 'add_expiry', 'on_product_expiry' => 'keep_selling', 'stop_selling_before' => '0', 'enable_tooltip' => '1', 'purchase_in_diff_currency' => '0', 'purchase_currency_id' => null, 'p_exchange_rate' => '1.000', 'transaction_edit_days' => '30', 'stock_expiry_alert_days' => '30', 'keyboard_shortcuts' => $shortcuts, 'pos_settings' => null, 'enable_brand' => '1', 'enable_category' => '1', 'enable_sub_category' => '1', 'enable_price_tax' => '1', 'enable_purchase_status' => '1', 'enable_lot_number' => '0', 'default_unit' => '5', 'enable_racks' => '0', 'enable_row' => '0', 'enable_position' => '0', 'enable_editing_product_from_purchase' => '1', 'sales_cmsn_agnt' => null, 'item_addition_method' => '1', 'enable_inline_tax' => '0', 'currency_symbol_placement' => 'before', 'enabled_modules' => '["purchases","add_sale","pos_sale","stock_transfers","stock_adjustment","expenses","account","subscription"]', 'date_format' => 'm/d/Y', 'time_format' => '24', 'repair_settings' => null, 'ref_no_prefixes' => $prefixes, 'created_at' => '2018-04-10 10:46:15', 'updated_at' => '2018-04-10 11:53:35', 'common_settings' => '{"enable_product_warranty":"1","default_datatable_page_entries":"25"}'],
-            ['id' => '4', 'name' => 'Awesome Services', 'currency_id' => '124', 'start_date' => '2018-03-10', 'tax_number_1' => '3412569900', 'tax_label_1' => 'GST', 'tax_number_2' => null, 'tax_label_2' => null, 'default_sales_tax' => null, 'default_profit_percent' => '25.00', 'owner_id' => '6', 'time_zone' => 'America/Chicago', 'fy_start_month' => '1', 'accounting_method' => 'fifo', 'default_sales_discount' => null, 'sell_price_tax' => 'includes', 'logo' => null, 'sku_prefix' => 'AS', 'enable_product_expiry' => '0', 'expiry_type' => 'add_expiry', 'on_product_expiry' => 'keep_selling', 'stop_selling_before' => '0', 'enable_tooltip' => '1', 'purchase_in_diff_currency' => '0', 'purchase_currency_id' => null, 'p_exchange_rate' => '1.000', 'transaction_edit_days' => '30', 'stock_expiry_alert_days' => '30', 'keyboard_shortcuts' => $shortcuts, 'pos_settings' => null, 'enable_brand' => '1', 'enable_category' => '1', 'enable_sub_category' => '0', 'enable_price_tax' => '1', 'enable_purchase_status' => '1', 'enable_lot_number' => '0', 'default_unit' => null, 'enable_racks' => '0', 'enable_row' => '0', 'enable_position' => '0', 'enable_editing_product_from_purchase' => '1', 'sales_cmsn_agnt' => null, 'item_addition_method' => '1', 'enable_inline_tax' => '0', 'currency_symbol_placement' => 'before', 'enabled_modules' => '["purchases","add_sale","pos_sale","expenses","account","service_staff"]', 'date_format' => 'm/d/Y', 'time_format' => '24', 'repair_settings' => '{"repair_tc_condition":"<p><strong>30- Day Service Warranty :<\\/strong> If your device encounters the same issue within 30 days of the repair, we will fix the issue at our own cost with no further question asked. You have your peace of mind.&nbsp;<\\/p>\\r\\n<p><strong>Service Disclaimers :<\\/strong> Please make sure that you collect your item within two months of servic-ing, Otherwise, we will not be liable if your item gets lost or damaged.&nbsp;<\\/p>\\r\\n<p><strong>Terms &amp;Conditions:<\\/strong> Please also be aware that we can only service your gadget at your own risk. Even though we do our best in \\"Awesome Services\\" to make things better. However, in the worst-case scenario, your gadget may be damaged during repairs. We will not be liable if such things happen. Visit our website to know more our Policy.<\\/p>","job_sheet_prefix":"JS","problem_reported_by_customer":"No backup, Battery life mediocre, Slow boot and application launch, Too glossy screen, Touchpad requires improvement, Keyboard requires improvement, RAM needs to be expanded, Lacks SD card slot","product_condition":"No physical damage, Screen fine, Screen scratches, body broken, Wet in water, colourful display, Great battery life, Excellent audio quality, Lacks SD card slot","product_configuration":"2 Gb RAM, 2GB ROM, Cpu,  Core i3 Processor, Core i5 Processor, Core i7 Processor, 16GB RAM, 4 GB RAM, 1TB HDD, 520 SSD, USB Type-C port, USB Type-A prot, 1080p IPS Display","default_status":"3"}', 'ref_no_prefixes' => $prefixes, 'created_at' => '2018-04-10 12:20:42', 'updated_at' => '2018-04-10 12:23:40', 'common_settings' => null],
+        // Product Catalogue demo settings: enable WhatsApp ordering + receiving number.
+        $productcatalogue_settings = json_encode([
+            'enable_whatsapp_ordering' => 1,
+            'order_receiving_whatsapp_number' => '123456789',
+        ]);
 
-            ['id' => '5', 'name' => 'Awesome Restaurant', 'currency_id' => '2', 'start_date' => '2018-07-12', 'tax_number_1' => '4578220005', 'tax_label_1' => 'IGST', 'tax_number_2' => '4593220009', 'tax_label_2' => 'SGST', 'default_sales_tax' => null, 'default_profit_percent' => '25.00', 'owner_id' => '7', 'time_zone' => 'America/Chicago', 'fy_start_month' => '1', 'accounting_method' => 'fifo', 'default_sales_discount' => null, 'sell_price_tax' => 'includes', 'logo' => null, 'sku_prefix' => 'AR', 'enable_product_expiry' => '0', 'expiry_type' => 'add_expiry', 'on_product_expiry' => 'keep_selling', 'stop_selling_before' => '0', 'enable_tooltip' => '1', 'purchase_in_diff_currency' => '0', 'purchase_currency_id' => null, 'p_exchange_rate' => '1.000', 'transaction_edit_days' => '30', 'stock_expiry_alert_days' => '30', 'keyboard_shortcuts' => $shortcuts, 'pos_settings' => '{"disable_pay_checkout":0,"disable_draft":0,"disable_express_checkout":0,"hide_product_suggestion":0,"hide_recent_trans":0,"disable_discount":0,"disable_order_tax":0, "customer_display_screen":1, "display_screen_heading":"<h2 style=\"text-align: center;\">Welcome<\/h2>", "carousel_image_1":"1744193481_20662.jpg","carousel_image_2":"1744193481_9195778.jpg","carousel_image_4":"1744193481_14928.jpg","carousel_image_5":"1744193481_14931.jpg"}', 'enable_brand' => '1', 'enable_category' => '1', 'enable_sub_category' => '1', 'enable_price_tax' => '1', 'enable_purchase_status' => '1', 'enable_lot_number' => '0', 'default_unit' => null, 'enable_racks' => '0', 'enable_row' => '0', 'enable_position' => '0', 'enable_editing_product_from_purchase' => '1', 'sales_cmsn_agnt' => null, 'item_addition_method' => '1', 'enable_inline_tax' => '0', 'currency_symbol_placement' => 'before', 'enabled_modules' => '["purchases","add_sale","pos_sale","stock_transfers","stock_adjustment","expenses","tables","modifiers","service_staff","kitchen","types_of_service","booking"]', 'date_format' => 'm/d/Y', 'time_format' => '24', 'repair_settings' => null, 'ref_no_prefixes' => $prefixes, 'created_at' => '2018-07-13 16:42:11', 'updated_at' => '2018-07-13 07:38:24', 'common_settings' => null],
-            ['id' => '6', 'name' => 'Manufacturers Demo', 'currency_id' => '124', 'start_date' => '2019-08-18', 'tax_number_1' => null, 'tax_label_1' => null, 'tax_number_2' => null, 'tax_label_2' => null, 'default_sales_tax' => null, 'default_profit_percent' => '25.00', 'owner_id' => '12', 'time_zone' => 'Asia/Kolkata', 'fy_start_month' => '1', 'accounting_method' => 'fifo', 'default_sales_discount' => null, 'sell_price_tax' => 'includes', 'logo' => null, 'sku_prefix' => null, 'enable_product_expiry' => '0', 'expiry_type' => 'add_expiry', 'on_product_expiry' => 'keep_selling', 'stop_selling_before' => '0', 'enable_tooltip' => '1', 'purchase_in_diff_currency' => '0', 'purchase_currency_id' => null, 'p_exchange_rate' => '1.000', 'transaction_edit_days' => '30', 'stock_expiry_alert_days' => '30', 'keyboard_shortcuts' => $shortcuts, 'pos_settings' => '{"disable_pay_checkout":0,"disable_draft":0,"disable_express_checkout":0,"hide_product_suggestion":0,"hide_recent_trans":0,"disable_discount":0,"disable_order_tax":0,"is_pos_subtotal_editable":0}', 'enable_brand' => '1', 'enable_category' => '1', 'enable_sub_category' => '1', 'enable_price_tax' => '1', 'enable_purchase_status' => '1', 'enable_lot_number' => '0', 'default_unit' => null, 'enable_racks' => '0', 'enable_row' => '0', 'enable_position' => '0', 'enable_editing_product_from_purchase' => '1', 'sales_cmsn_agnt' => null, 'item_addition_method' => '1', 'enable_inline_tax' => '0', 'currency_symbol_placement' => 'before', 'enabled_modules' => '["purchases","add_sale","pos_sale","stock_transfers","stock_adjustment","expenses"]', 'date_format' => 'm/d/Y', 'time_format' => '24', 'repair_settings' => null, 'ref_no_prefixes' => $prefixes, 'created_at' => '2019-08-18 18:41:28', 'updated_at' => '2019-08-18 18:43:22', 'common_settings' => null],
+        $business = [
+            ['id' => '1', 'name' => 'Awesome Shop', 'currency_id' => '2', 'start_date' => '2018-01-01', 'tax_number_1' => '3412569900', 'tax_label_1' => 'GSTIN', 'tax_number_2' => null, 'tax_label_2' => null, 'default_sales_tax' => null, 'default_profit_percent' => '25.00', 'owner_id' => '1', 'time_zone' => 'America/Phoenix', 'fy_start_month' => '1', 'accounting_method' => 'fifo', 'default_sales_discount' => '10.00', 'sell_price_tax' => 'includes', 'logo' => null, 'sku_prefix' => 'AS', 'enable_product_expiry' => '0', 'expiry_type' => 'add_expiry', 'on_product_expiry' => 'keep_selling', 'stop_selling_before' => '0', 'enable_tooltip' => '1', 'purchase_in_diff_currency' => '0', 'purchase_currency_id' => null, 'p_exchange_rate' => '1.000', 'transaction_edit_days' => '30', 'stock_expiry_alert_days' => '30', 'keyboard_shortcuts' => $shortcuts, 'pos_settings' => '{"disable_pay_checkout":0,"disable_draft":0,"disable_express_checkout":0,"hide_product_suggestion":0,"hide_recent_trans":0,"disable_discount":0,"disable_order_tax":0, "customer_display_screen":1, "display_screen_heading":"<h2 style=\"text-align: center;\">Welcome<\/h2>", "carousel_image_1":"1744193481_20662.jpg","carousel_image_2":"1744193481_9195778.jpg","carousel_image_4":"1744193481_14928.jpg","carousel_image_5":"1744193481_14931.jpg"}', 'enable_brand' => '1', 'enable_category' => '1', 'enable_sub_category' => '1', 'enable_price_tax' => '1', 'enable_purchase_status' => '1', 'enable_lot_number' => '0', 'default_unit' => null, 'enable_racks' => '0', 'enable_row' => '0', 'enable_position' => '0', 'enable_editing_product_from_purchase' => '1', 'sales_cmsn_agnt' => null, 'item_addition_method' => '1', 'enable_inline_tax' => '1', 'currency_symbol_placement' => 'before', 'enabled_modules' => '["purchases","add_sale","pos_sale","stock_transfers","stock_adjustment","expenses","account"]', 'date_format' => 'm/d/Y', 'time_format' => '24', 'repair_settings' => null, 'ref_no_prefixes' => $prefixes, 'created_at' => '2018-01-04 02:15:19', 'updated_at' => '2018-01-04 02:17:08', 'common_settings' => null, 'productcatalogue_settings' => $productcatalogue_settings],
+            ['id' => '2', 'name' => 'Awesome Pharmacy', 'currency_id' => '2', 'start_date' => '2018-04-10', 'tax_number_1' => '3412569900', 'tax_label_1' => 'VAT', 'tax_number_2' => null, 'tax_label_2' => null, 'default_sales_tax' => null, 'default_profit_percent' => '25.00', 'owner_id' => '4', 'time_zone' => 'America/Chicago', 'fy_start_month' => '1', 'accounting_method' => 'fifo', 'default_sales_discount' => null, 'sell_price_tax' => 'includes', 'logo' => null, 'sku_prefix' => 'AP', 'enable_product_expiry' => '1', 'expiry_type' => 'add_manufacturing', 'on_product_expiry' => 'stop_selling', 'stop_selling_before' => '0', 'enable_tooltip' => '1', 'purchase_in_diff_currency' => '0', 'purchase_currency_id' => null, 'p_exchange_rate' => '1.000', 'transaction_edit_days' => '30', 'stock_expiry_alert_days' => '30', 'keyboard_shortcuts' => $shortcuts, 'pos_settings' => null, 'enable_brand' => '1', 'enable_category' => '1', 'enable_sub_category' => '1', 'enable_price_tax' => '1', 'enable_purchase_status' => '1', 'enable_lot_number' => '1', 'default_unit' => '4', 'enable_racks' => '0', 'enable_row' => '0', 'enable_position' => '0', 'enable_editing_product_from_purchase' => '1', 'sales_cmsn_agnt' => null, 'item_addition_method' => '1', 'enable_inline_tax' => '0', 'currency_symbol_placement' => 'before', 'enabled_modules' => '["purchases","add_sale","pos_sale","stock_transfers","stock_adjustment","expenses","account"]', 'date_format' => 'm/d/Y', 'time_format' => '24', 'repair_settings' => null, 'ref_no_prefixes' => $prefixes, 'created_at' => '2018-04-10 08:12:40', 'updated_at' => '2018-04-10 10:21:38', 'common_settings' => null, 'productcatalogue_settings' => $productcatalogue_settings],
+            ['id' => '3', 'name' => 'Ultimate Electronics', 'currency_id' => '2', 'start_date' => '2018-04-10', 'tax_number_1' => '12548555003', 'tax_label_1' => 'GST', 'tax_number_2' => null, 'tax_label_2' => null, 'default_sales_tax' => null, 'default_profit_percent' => '25.00', 'owner_id' => '5', 'time_zone' => 'America/Chicago', 'fy_start_month' => '1', 'accounting_method' => 'fifo', 'default_sales_discount' => null, 'sell_price_tax' => 'includes', 'logo' => null, 'sku_prefix' => 'AE', 'enable_product_expiry' => '0', 'expiry_type' => 'add_expiry', 'on_product_expiry' => 'keep_selling', 'stop_selling_before' => '0', 'enable_tooltip' => '1', 'purchase_in_diff_currency' => '0', 'purchase_currency_id' => null, 'p_exchange_rate' => '1.000', 'transaction_edit_days' => '30', 'stock_expiry_alert_days' => '30', 'keyboard_shortcuts' => $shortcuts, 'pos_settings' => null, 'enable_brand' => '1', 'enable_category' => '1', 'enable_sub_category' => '1', 'enable_price_tax' => '1', 'enable_purchase_status' => '1', 'enable_lot_number' => '0', 'default_unit' => '5', 'enable_racks' => '0', 'enable_row' => '0', 'enable_position' => '0', 'enable_editing_product_from_purchase' => '1', 'sales_cmsn_agnt' => null, 'item_addition_method' => '1', 'enable_inline_tax' => '0', 'currency_symbol_placement' => 'before', 'enabled_modules' => '["purchases","add_sale","pos_sale","stock_transfers","stock_adjustment","expenses","account","subscription"]', 'date_format' => 'm/d/Y', 'time_format' => '24', 'repair_settings' => null, 'ref_no_prefixes' => $prefixes, 'created_at' => '2018-04-10 10:46:15', 'updated_at' => '2018-04-10 11:53:35', 'common_settings' => '{"enable_product_warranty":"1","default_datatable_page_entries":"25"}', 'productcatalogue_settings' => $productcatalogue_settings],
+            ['id' => '4', 'name' => 'Awesome Services', 'currency_id' => '124', 'start_date' => '2018-03-10', 'tax_number_1' => '3412569900', 'tax_label_1' => 'GST', 'tax_number_2' => null, 'tax_label_2' => null, 'default_sales_tax' => null, 'default_profit_percent' => '25.00', 'owner_id' => '6', 'time_zone' => 'America/Chicago', 'fy_start_month' => '1', 'accounting_method' => 'fifo', 'default_sales_discount' => null, 'sell_price_tax' => 'includes', 'logo' => null, 'sku_prefix' => 'AS', 'enable_product_expiry' => '0', 'expiry_type' => 'add_expiry', 'on_product_expiry' => 'keep_selling', 'stop_selling_before' => '0', 'enable_tooltip' => '1', 'purchase_in_diff_currency' => '0', 'purchase_currency_id' => null, 'p_exchange_rate' => '1.000', 'transaction_edit_days' => '30', 'stock_expiry_alert_days' => '30', 'keyboard_shortcuts' => $shortcuts, 'pos_settings' => null, 'enable_brand' => '1', 'enable_category' => '1', 'enable_sub_category' => '0', 'enable_price_tax' => '1', 'enable_purchase_status' => '1', 'enable_lot_number' => '0', 'default_unit' => null, 'enable_racks' => '0', 'enable_row' => '0', 'enable_position' => '0', 'enable_editing_product_from_purchase' => '1', 'sales_cmsn_agnt' => null, 'item_addition_method' => '1', 'enable_inline_tax' => '0', 'currency_symbol_placement' => 'before', 'enabled_modules' => '["purchases","add_sale","pos_sale","expenses","account","service_staff"]', 'date_format' => 'm/d/Y', 'time_format' => '24', 'repair_settings' => '{"repair_tc_condition":"<p><strong>30- Day Service Warranty :<\\/strong> If your device encounters the same issue within 30 days of the repair, we will fix the issue at our own cost with no further question asked. You have your peace of mind.&nbsp;<\\/p>\\r\\n<p><strong>Service Disclaimers :<\\/strong> Please make sure that you collect your item within two months of servic-ing, Otherwise, we will not be liable if your item gets lost or damaged.&nbsp;<\\/p>\\r\\n<p><strong>Terms &amp;Conditions:<\\/strong> Please also be aware that we can only service your gadget at your own risk. Even though we do our best in \\"Awesome Services\\" to make things better. However, in the worst-case scenario, your gadget may be damaged during repairs. We will not be liable if such things happen. Visit our website to know more our Policy.<\\/p>","job_sheet_prefix":"JS","problem_reported_by_customer":"No backup, Battery life mediocre, Slow boot and application launch, Too glossy screen, Touchpad requires improvement, Keyboard requires improvement, RAM needs to be expanded, Lacks SD card slot","product_condition":"No physical damage, Screen fine, Screen scratches, body broken, Wet in water, colourful display, Great battery life, Excellent audio quality, Lacks SD card slot","product_configuration":"2 Gb RAM, 2GB ROM, Cpu,  Core i3 Processor, Core i5 Processor, Core i7 Processor, 16GB RAM, 4 GB RAM, 1TB HDD, 520 SSD, USB Type-C port, USB Type-A prot, 1080p IPS Display","default_status":"3"}', 'ref_no_prefixes' => $prefixes, 'created_at' => '2018-04-10 12:20:42', 'updated_at' => '2018-04-10 12:23:40', 'common_settings' => null, 'productcatalogue_settings' => $productcatalogue_settings],
+
+            ['id' => '5', 'name' => 'Awesome Restaurant', 'currency_id' => '2', 'start_date' => '2018-07-12', 'tax_number_1' => '4578220005', 'tax_label_1' => 'IGST', 'tax_number_2' => '4593220009', 'tax_label_2' => 'SGST', 'default_sales_tax' => null, 'default_profit_percent' => '25.00', 'owner_id' => '7', 'time_zone' => 'America/Chicago', 'fy_start_month' => '1', 'accounting_method' => 'fifo', 'default_sales_discount' => null, 'sell_price_tax' => 'includes', 'logo' => null, 'sku_prefix' => 'AR', 'enable_product_expiry' => '0', 'expiry_type' => 'add_expiry', 'on_product_expiry' => 'keep_selling', 'stop_selling_before' => '0', 'enable_tooltip' => '1', 'purchase_in_diff_currency' => '0', 'purchase_currency_id' => null, 'p_exchange_rate' => '1.000', 'transaction_edit_days' => '30', 'stock_expiry_alert_days' => '30', 'keyboard_shortcuts' => $shortcuts, 'pos_settings' => '{"disable_pay_checkout":0,"disable_draft":0,"disable_express_checkout":0,"hide_product_suggestion":0,"hide_recent_trans":0,"disable_discount":0,"disable_order_tax":0, "customer_display_screen":1, "display_screen_heading":"<h2 style=\"text-align: center;\">Welcome<\/h2>", "carousel_image_1":"1744193481_20662.jpg","carousel_image_2":"1744193481_9195778.jpg","carousel_image_4":"1744193481_14928.jpg","carousel_image_5":"1744193481_14931.jpg"}', 'enable_brand' => '1', 'enable_category' => '1', 'enable_sub_category' => '1', 'enable_price_tax' => '1', 'enable_purchase_status' => '1', 'enable_lot_number' => '0', 'default_unit' => null, 'enable_racks' => '0', 'enable_row' => '0', 'enable_position' => '0', 'enable_editing_product_from_purchase' => '1', 'sales_cmsn_agnt' => null, 'item_addition_method' => '1', 'enable_inline_tax' => '0', 'currency_symbol_placement' => 'before', 'enabled_modules' => '["purchases","add_sale","pos_sale","stock_transfers","stock_adjustment","expenses","tables","modifiers","service_staff","kitchen","types_of_service","booking"]', 'date_format' => 'm/d/Y', 'time_format' => '24', 'repair_settings' => null, 'ref_no_prefixes' => $prefixes, 'created_at' => '2018-07-13 16:42:11', 'updated_at' => '2018-07-13 07:38:24', 'common_settings' => null, 'productcatalogue_settings' => $productcatalogue_settings],
+            ['id' => '6', 'name' => 'Manufacturers Demo', 'currency_id' => '124', 'start_date' => '2019-08-18', 'tax_number_1' => null, 'tax_label_1' => null, 'tax_number_2' => null, 'tax_label_2' => null, 'default_sales_tax' => null, 'default_profit_percent' => '25.00', 'owner_id' => '12', 'time_zone' => 'Asia/Kolkata', 'fy_start_month' => '1', 'accounting_method' => 'fifo', 'default_sales_discount' => null, 'sell_price_tax' => 'includes', 'logo' => null, 'sku_prefix' => null, 'enable_product_expiry' => '0', 'expiry_type' => 'add_expiry', 'on_product_expiry' => 'keep_selling', 'stop_selling_before' => '0', 'enable_tooltip' => '1', 'purchase_in_diff_currency' => '0', 'purchase_currency_id' => null, 'p_exchange_rate' => '1.000', 'transaction_edit_days' => '30', 'stock_expiry_alert_days' => '30', 'keyboard_shortcuts' => $shortcuts, 'pos_settings' => '{"disable_pay_checkout":0,"disable_draft":0,"disable_express_checkout":0,"hide_product_suggestion":0,"hide_recent_trans":0,"disable_discount":0,"disable_order_tax":0,"is_pos_subtotal_editable":0}', 'enable_brand' => '1', 'enable_category' => '1', 'enable_sub_category' => '1', 'enable_price_tax' => '1', 'enable_purchase_status' => '1', 'enable_lot_number' => '0', 'default_unit' => null, 'enable_racks' => '0', 'enable_row' => '0', 'enable_position' => '0', 'enable_editing_product_from_purchase' => '1', 'sales_cmsn_agnt' => null, 'item_addition_method' => '1', 'enable_inline_tax' => '0', 'currency_symbol_placement' => 'before', 'enabled_modules' => '["purchases","add_sale","pos_sale","stock_transfers","stock_adjustment","expenses"]', 'date_format' => 'm/d/Y', 'time_format' => '24', 'repair_settings' => null, 'ref_no_prefixes' => $prefixes, 'created_at' => '2019-08-18 18:41:28', 'updated_at' => '2019-08-18 18:43:22', 'common_settings' => null, 'productcatalogue_settings' => $productcatalogue_settings],
         ];
         DB::table('business')->insert($business);
 
@@ -69,6 +75,278 @@ class DummyBusinessSeeder extends Seeder
         ];
 
         DB::table('business_locations')->insert($business_locations);
+
+        $hms_room_types = [
+            [
+                'id' => 1,
+                'type' => 'Standard Room',
+                'no_of_adult' => 2,
+                'no_of_child' => 1,
+                'max_occupancy' => 3,
+                'amenities' => 'Free WiFi, Air conditioning, TV',
+                'description' => 'Comfortable standard room suitable for small families or business travellers.',
+                'business_id' => 1,
+                'created_by' => 7,
+                'created_at' => $today,
+                'updated_at' => $today,
+            ],
+            [
+                'id' => 2,
+                'type' => 'Deluxe Room',
+                'no_of_adult' => 2,
+                'no_of_child' => 2,
+                'max_occupancy' => 4,
+                'amenities' => 'Free WiFi, Air conditioning, TV, Mini fridge, Workspace',
+                'description' => 'Spacious deluxe room with extra amenities for longer stays.',
+                'business_id' => 5,
+                'created_by' => 7,
+                'created_at' => $today,
+                'updated_at' => $today,
+            ],
+            [
+                'id' => 3,
+                'type' => 'Suite',
+                'no_of_adult' => 3,
+                'no_of_child' => 2,
+                'max_occupancy' => 5,
+                'amenities' => 'Free WiFi, Air conditioning, TV, Living area, Coffee machine',
+                'description' => 'Premium suite with separate living area for families or VIP guests.',
+                'business_id' => 5,
+                'created_by' => 7,
+                'created_at' => $today,
+                'updated_at' => $today,
+            ],
+        ];
+
+        DB::table('hms_room_types')->insert($hms_room_types);
+
+        $hms_rooms = [
+            [
+                'id' => 1,
+                'hms_room_type_id' => 1,
+                'room_number' => '101',
+                'created_at' => $today,
+                'updated_at' => $today,
+            ],
+            [
+                'id' => 2,
+                'hms_room_type_id' => 1,
+                'room_number' => '201',
+                'created_at' => $today,
+                'updated_at' => $today,
+            ],
+        ];
+
+        DB::table('hms_rooms')->insert($hms_rooms);
+
+        $hms_room_type_pricings = [
+            [
+                'id' => 1,
+                'hms_room_type_id' => 1,
+                'season_type' => 'standard',
+                'default_price_per_night' => 100.00,
+                'adults' => null,
+                'childrens' => null,
+                'price_monday' => null,
+                'price_tuesday' => null,
+                'price_wednesday' => null,
+                'price_thursday' => null,
+                'price_friday' => null,
+                'price_saturday' => null,
+                'price_sunday' => null,
+                'created_at' => $today,
+                'updated_at' => $today,
+            ],
+            [
+                'id' => 2,
+                'hms_room_type_id' => 2,
+                'season_type' => 'standard',
+                'default_price_per_night' => 150.00,
+                'adults' => null,
+                'childrens' => null,
+                'price_monday' => null,
+                'price_tuesday' => null,
+                'price_wednesday' => null,
+                'price_thursday' => null,
+                'price_friday' => null,
+                'price_saturday' => null,
+                'price_sunday' => null,
+                'created_at' => $today,
+                'updated_at' => $today,
+            ],
+            [
+                'id' => 3,
+                'hms_room_type_id' => 3,
+                'season_type' => 'standard',
+                'default_price_per_night' => 220.00,
+                'adults' => null,
+                'childrens' => null,
+                'price_monday' => null,
+                'price_tuesday' => null,
+                'price_wednesday' => null,
+                'price_thursday' => null,
+                'price_friday' => null,
+                'price_saturday' => null,
+                'price_sunday' => null,
+                'created_at' => $today,
+                'updated_at' => $today,
+            ],
+        ];
+
+        DB::table('hms_room_type_pricings')->insert($hms_room_type_pricings);
+
+        $hms_extras = [
+            [
+                'id' => 1,
+                'name' => 'Breakfast',
+                'price' => 15.00,
+                'price_per' => 'per_night',
+                'business_id' => 1,
+                'created_by' => 7,
+                'is_active' => true,
+                'created_at' => $today,
+                'updated_at' => $today,
+            ],
+            [
+                'id' => 2,
+                'name' => 'Airport Pickup',
+                'price' => 40.00,
+                'price_per' => 'per_booking',
+                'business_id' => 5,
+                'created_by' => 7,
+                'is_active' => true,
+                'created_at' => $today,
+                'updated_at' => $today,
+            ],
+            [
+                'id' => 3,
+                'name' => 'Late Checkout',
+                'price' => 25.00,
+                'price_per' => 'per_booking',
+                'business_id' => 5,
+                'created_by' => 7,
+                'is_active' => true,
+                'created_at' => $today,
+                'updated_at' => $today,
+            ],
+        ];
+
+        DB::table('hms_extras')->insert($hms_extras);
+
+        $hms_coupons = [
+            [
+                'id' => 1,
+                'hms_room_type_id' => 1,
+                'business_id' => 1,
+                'start_date' => \Carbon::now()->subDays(7)->format('Y-m-d'),
+                'end_date' => \Carbon::now()->addDays(30)->format('Y-m-d'),
+                'coupon_code' => 'STD10',
+                'discount' => 10,
+                'discount_type' => 'percentage',
+                'created_at' => $today,
+                'updated_at' => $today,
+            ],
+            [
+                'id' => 2,
+                'hms_room_type_id' => 2,
+                'business_id' => 5,
+                'start_date' => \Carbon::now()->subDays(7)->format('Y-m-d'),
+                'end_date' => \Carbon::now()->addDays(30)->format('Y-m-d'),
+                'coupon_code' => 'DLX15',
+                'discount' => 15,
+                'discount_type' => 'percentage',
+                'created_at' => $today,
+                'updated_at' => $today,
+            ],
+        ];
+
+        DB::table('hms_coupons')->insert($hms_coupons);
+
+        $hms_arrival = \Carbon::now()->addDays(1)->format('Y-m-d H:i:s');
+        $hms_departure = \Carbon::now()->addDays(3)->format('Y-m-d H:i:s');
+
+        $hms_booking_transactions = [
+            [
+                'id' => 54,
+                'business_id' => 1,
+                'location_id' => 1,
+                'res_table_id' => null,
+                'res_waiter_id' => null,
+                'res_order_status' => null,
+                'type' => 'hms_booking',
+                'status' => 'confirmed',
+                'is_quotation' => '0',
+                'payment_status' => 'due',
+                'adjustment_type' => null,
+                'contact_id' => 1,
+                'customer_group_id' => null,
+                'invoice_no' => null,
+                'ref_no' => 'HB0001',
+                'transaction_date' => $today,
+                'total_before_tax' => '115.00',
+                'tax_id' => null,
+                'tax_amount' => '0.00',
+                'discount_type' => null,
+                'discount_amount' => '0',
+                'shipping_details' => null,
+                'shipping_charges' => '0.00',
+                'additional_notes' => null,
+                'staff_note' => null,
+                'final_total' => '115.00',
+                'expense_category_id' => null,
+                'expense_for' => null,
+                'commission_agent' => null,
+                'document' => null,
+                'is_direct_sale' => '0',
+                'exchange_rate' => '1.000',
+                'total_amount_recovered' => null,
+                'transfer_parent_id' => null,
+                'opening_stock_product_id' => null,
+                'created_by' => 1,
+                'hms_coupon_id' => null,
+                'hms_booking_arrival_date_time' => $hms_arrival,
+                'hms_booking_departure_date_time' => $hms_departure,
+                'hms_reason_for_trip' => null,
+                'hms_means_of_transport' => null,
+                'hms_vehicle_registration_number' => null,
+                'hms_place_of_origin' => null,
+                'hms_final_destination' => null,
+                'created_at' => $today,
+                'updated_at' => $today,
+            ],
+        ];
+
+        DB::table('transactions')->insert($hms_booking_transactions);
+
+        $hms_booking_lines = [
+            [
+                'id' => 1,
+                'transaction_id' => 54,
+                'hms_room_id' => 1,
+                'hms_room_type_id' => 1,
+                'adults' => 2,
+                'childrens' => 0,
+                'price' => '100.00',
+                'total_price' => '100.00',
+                'created_at' => $today,
+                'updated_at' => $today,
+            ],
+        ];
+
+        DB::table('hms_booking_lines')->insert($hms_booking_lines);
+
+        $hms_booking_extras = [
+            [
+                'id' => 1,
+                'transaction_id' => 54,
+                'hms_extra_id' => 1,
+                'price' => '15.00',
+                'created_at' => $today,
+                'updated_at' => $today,
+            ],
+        ];
+
+        DB::table('hms_booking_extras')->insert($hms_booking_extras);
 
         // `pos`.`cash_register_transactions`
         $cash_register_transactions = [
@@ -179,6 +457,9 @@ class DummyBusinessSeeder extends Seeder
             ['id' => '46', 'name' => 'Laptop', 'business_id' => '4', 'short_code' => null, 'parent_id' => '0', 'created_by' => '1', 'category_type' => 'device', 'description' => 'Laptop', 'slug' => null, 'woocommerce_cat_id' => null, 'deleted_at' => null, 'created_at' => '2020-05-07 21:04:38', 'updated_at' => '2020-05-07 21:04:38'],
             ['id' => '47', 'name' => 'Desktop', 'business_id' => '4', 'short_code' => null, 'parent_id' => '0', 'created_by' => '1', 'category_type' => 'device', 'description' => 'Desktop', 'slug' => null, 'woocommerce_cat_id' => null, 'deleted_at' => null, 'created_at' => '2020-05-07 21:04:47', 'updated_at' => '2020-05-07 21:04:47'],
             ['id' => '48', 'name' => 'Mobile', 'business_id' => '4', 'short_code' => null, 'parent_id' => '0', 'created_by' => '1', 'category_type' => 'device', 'description' => 'Mobile', 'slug' => null, 'woocommerce_cat_id' => null, 'deleted_at' => null, 'created_at' => '2020-05-07 21:05:01', 'updated_at' => '2020-05-07 21:05:01'],
+            ['id' => '49', 'name' => 'Free WiFi', 'business_id' => '1', 'short_code' => null, 'parent_id' => '0', 'created_by' => '1', 'category_type' => 'amenities', 'description' => 'Complimentary wireless internet access', 'slug' => null, 'woocommerce_cat_id' => null, 'deleted_at' => null, 'created_at' => $today, 'updated_at' => $today],
+            ['id' => '50', 'name' => 'Breakfast Included', 'business_id' => '1', 'short_code' => null, 'parent_id' => '0', 'created_by' => '1', 'category_type' => 'amenities', 'description' => 'Buffet breakfast included with stay', 'slug' => null, 'woocommerce_cat_id' => null, 'deleted_at' => null, 'created_at' => $today, 'updated_at' => $today],
+            ['id' => '51', 'name' => 'Free Parking', 'business_id' => '1', 'short_code' => null, 'parent_id' => '0', 'created_by' => '1', 'category_type' => 'amenities', 'description' => 'On-site parking at no extra cost', 'slug' => null, 'woocommerce_cat_id' => null, 'deleted_at' => null, 'created_at' => $today, 'updated_at' => $today],
         ];
         DB::table('categories')->insert($categories);
         $contacts = [

@@ -98,7 +98,10 @@ class StockTransferController extends Controller
 
             return Datatables::of($stock_transfers)
                 ->addColumn('action', function ($row) use ($edit_days) {
-                    $html = '<button type="button" title="'.__('stock_adjustment.view_details').'" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-accent btn-modal" data-container=".view_modal" data-href="'.action([\App\Http\Controllers\StockTransferController::class, 'show'], [$row->id]).'"><i class="fa fa-eye" aria-hidden="true"></i> '.__('messages.view').'</button>';
+                    $html = '';
+                    if (auth()->user()->can('stock_transfer.view') || auth()->user()->can('stock_transfer.view_own')) {
+                        $html .= '<button type="button" title="'.__('stock_adjustment.view_details').'" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-accent btn-modal" data-container=".view_modal" data-href="'.action([\App\Http\Controllers\StockTransferController::class, 'show'], [$row->id]).'"><i class="fa fa-eye" aria-hidden="true"></i> '.__('messages.view').'</button>';
+                    }
 
                     $html .= ' <a href="#" class="print-invoice tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-info" data-href="'.action([\App\Http\Controllers\StockTransferController::class, 'printInvoice'], [$row->id]).'"><i class="fa fa-print" aria-hidden="true"></i> '.__('messages.print').'</a>';
 
@@ -381,7 +384,7 @@ class StockTransferController extends Controller
      */
     public function show($id)
     {
-        if (! auth()->user()->can('stock_transfer.view')) {
+        if (! auth()->user()->can('stock_transfer.view') && ! auth()->user()->can('stock_transfer.view_own')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -634,7 +637,15 @@ class StockTransferController extends Controller
 
         $products = [];
         foreach ($sell_transfer->sell_lines as $sell_line) {
-            $product = $this->productUtil->getDetailsFromVariation($sell_line->variation_id, $business_id, $sell_transfer->location_id, false);
+            $product = $this->productUtil->getDetailsFromVariation(
+                $sell_line->variation_id,
+                $business_id,
+                $sell_transfer->location_id,
+                true,
+                // Allow zero stock here so an existing transfer can still be edited/viewed
+                // even if the current location stock has since reached 0.
+                true
+            );
             $product->formatted_qty_available = $this->productUtil->num_f($product->qty_available);
             $product->sub_unit_id = $sell_line->sub_unit_id;
             $product->quantity_ordered = $sell_line->quantity;

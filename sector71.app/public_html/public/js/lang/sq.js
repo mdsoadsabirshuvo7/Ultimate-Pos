@@ -69,7 +69,9 @@ LANG = {
 "copy": "Copy", 
 "export_to_csv": "Eksporto në CSV", 
 "export_to_excel": "Eksporto në Excel", 
-"export_to_pdf": "Eksporto në PDF", 
+"export_to_pdf": "Eksporto në PDF",
+"portrait": "Portret",
+"landscape": "Peizazh",
 "print": "Print", 
 "col_vis": "Visibility Column", 
 "search": "Kërko", 
@@ -145,4 +147,10 @@ LANG = {
     'name_length_exceeded': 'Gjatësia totale e Prefiksit, Emrit të Parë, të Mesëm dhe të Mbiemrit nuk mund të kalojë 127 karaktere.',
     'error': 'Gabim',
     'ok': 'OK',
+
+    // Calculator
+    'calculator': 'Kalkulator',
+    'calc_recent_calculations': 'Llogaritjet e fundit',
+    'calc_no_calculations_yet': 'Ende nuk ka llogaritje',
+    'calc_clear_history': 'Pastro historikun'
 };

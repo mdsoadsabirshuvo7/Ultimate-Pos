@@ -52,7 +52,7 @@
                       <th>@lang('lang_v1.size')</th>
                       <th>@lang('lang_v1.date')</th>
                       <th>@lang('lang_v1.age')</th>
-                      <th>@lang('messages.actions')</th>
+                      <th class="not-export">@lang('messages.actions')</th>
                   </tr>
                   </thead>
                     <tbody>

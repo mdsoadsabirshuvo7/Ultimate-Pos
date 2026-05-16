@@ -104,7 +104,6 @@
 <script src="{{ asset('js/functions.js?v=' . $asset_v) }}"></script>
 <script src="{{ asset('js/common.js?v=' . $asset_v) }}"></script>
 <script src="{{ asset('js/app.js?v=' . $asset_v) }}"></script>
-<script src="{{ asset('js/offline-sync.js?v=' . $asset_v . '&pwa=26') }}"></script>
 <script src="{{ asset('js/help-tour.js?v=' . $asset_v) }}"></script>
 <script src="{{ asset('js/documents_and_note.js?v=' . $asset_v) }}"></script>
 
@@ -145,68 +144,15 @@
             locale: locale,
             isRTL: isRTL
         });
-        // side bar toggle  
-        $(".drop_down").click(function(event) {
-            event.preventDefault();
-            var $chiled = $(this).next(".chiled");
-            var svgElement = $(this).find(".svg");
-            $(".chiled").not($chiled).slideUp();
-            $chiled.slideToggle(function() {
-                $(".svg").each(function() {
-                    var $currentSvgElement = $(this);
-                    if ($currentSvgElement.closest(".drop_down").next(".chiled").is(
-                            ":visible")) {
-                        // If the corresponding menu is visible, set the arrow pointing upwards
-                        $currentSvgElement.html(
-                            '<path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M6 9l6 6l6 -6" />'
-                        );
-                    } else {
-                        // Otherwise, set the arrow pointing downwards
-                        $currentSvgElement.html(
-                            '<path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 6l-6 6l6 6" />'
-                        );
-                    }
-                });
-            });
-        });
 
-        $('.small-view-button').on('click', function() {
-            $('.side-bar').addClass('small-view-side-active');
-            $('.overlay').fadeIn('slow');
-        });
-
-        $('.overlay').on('click', function() {
-            $('.overlay').fadeOut('slow');
-            $('.side-bar').removeClass('small-view-side-active');
-        });
-
-        $(window).on('resize', function() {
-            if ($(window).width() >= 992) {
-                $('.overlay').fadeOut('slow');
-                $('.side-bar').removeClass('small-view-side-active');
-            }
-
-            if($('.side-bar').hasClass('small-view-side-active')){
-                $('.overlay').fadeIn('slow');
-            }
-        });
-
+        // Initialize popovers and close them when clicking outside
+        $('[data-toggle="popover"]').popover();
         $(document).on('click', function (e) {
-            $('[data-toggle="popover"]').popover();
-
-            $(document).on('click', function (e) {
-                $('[data-toggle="popover"]').each(function () {
-                    // Check if the clicked element is the popover button or inside the popover
-                    if (!$(this).is(e.target) && $(this).has(e.target).length === 0 && $('.popover').has(e.target).length === 0) {
-                        $(this).popover('hide');
-                    }
-                });
+            $('[data-toggle="popover"]').each(function () {
+                if (!$(this).is(e.target) && $(this).has(e.target).length === 0 && $('.popover').has(e.target).length === 0) {
+                    $(this).popover('hide');
+                }
             });
-            
-        });
-
-        $('.side-bar-collapse').click(function() {
-            $('.side-bar').toggle('slow');
         });
 
         $('.dt-buttons.btn-group').find('a.btn').removeClass('btn-default');
@@ -221,41 +167,3 @@
 
 
 
-
-@if(!empty($__system_settings['whatsapp_number']))
-    <!-- WhatsApp Floating Widget -->
-    <style>
-        .wa-float {
-            position: fixed;
-            width: 60px;
-            height: 60px;
-            bottom: 40px;
-            left: 40px; 
-            background-color: #25d366;
-            color: #FFF !important;
-            border-radius: 50px;
-            text-align: center;
-            font-size: 30px;
-            box-shadow: 2px 2px 3px #999;
-            z-index: 999999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-        .wa-float:hover {
-            background-color: #128C7E;
-            color: #FFF !important;
-            transform: scale(1.1);
-        }
-        .wa-float i {
-            margin-top: 2px;
-        }
-        /* Hide default chat widgets that might conflict */
-        .cp-whatsapp-wrapper { z-index: 99999 !important; }
-    </style>
-    <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $__system_settings['whatsapp_number']) }}?text={{ urlencode($__system_settings['whatsapp_greeting'] ?? 'Hello!') }}" class="wa-float" target="_blank" title="Chat with us on WhatsApp">
-        <i class="fab fa-whatsapp"></i>
-    </a>
-@endif

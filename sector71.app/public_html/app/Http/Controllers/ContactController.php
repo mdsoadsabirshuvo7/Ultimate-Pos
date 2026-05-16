@@ -1335,6 +1335,7 @@ class ContactController extends Controller
             $mpdf = $this->getMpdf($orientation);
             $mpdf->WriteHTML($html);
             $mpdf->Output($output_file_name, 'I');
+            exit;
         }
 
         if ($format == 'format_2') {

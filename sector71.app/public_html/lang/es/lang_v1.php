@@ -553,6 +553,9 @@ return [
     'tooltip_enable_user_active' => 'Marcar / Desmarcar para que un usuario esté activo / inactivo.',
     'user_inactive' => 'Lo siento, la cuenta está inactiva',
     'calculator' => 'Calculadora',
+    'calc_recent_calculations' => 'Cálculos recientes',
+    'calc_no_calculations_yet' => 'Sin cálculos aún',
+    'calc_clear_history' => 'Limpiar historial',
     'fields_for_customer_details' => 'Campos para detalles del cliente',
     'show_previous_bal_due' => 'Mostrar saldo total adeudado (Todas las ventas)',
     'previous_bal_due_help' => 'Marque este campo para mostrar la suma de las cuotas de saldo para todas las ventas del cliente si existe',
@@ -996,6 +999,7 @@ return [
     'year_month' => 'Año mes',
     'lead' => 'Dirigir',
     'featured_products' => 'Productos Destacados',
+    'featured_products_empty_msg' => 'Por favor, agregue el producto destacado editando el',
     'repeat_on' => 'Repita en',
     'access_tables' => 'Tablas de acceso',
     'access_printers' => 'Impresoras de acceso',
@@ -1430,5 +1434,7 @@ return [
     'show_previous_balance_due' => 'Mostrar saldo anterior adeudado',
     'view_own_purchase' => 'Ver compras propias',
     'view_all_purchase' => 'Ver todas las compras',
+    'hms_booking' => 'Reserva HMS',
+    'gym_subscription' => 'Suscripción al gimnasio',
 ];
 

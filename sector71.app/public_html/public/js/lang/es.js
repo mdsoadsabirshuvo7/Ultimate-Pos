@@ -69,7 +69,9 @@ LANG = {
 "copy": "Dupdo", 
 "export_to_csv": "Exportar a CSV", 
 "export_to_excel": "Exportar a Excel", 
-"export_to_pdf": "Exportar a PDF", 
+"export_to_pdf": "Exportar a PDF",
+"portrait": "Vertical",
+"landscape": "Horizontal",
 "print": "Impresión", 
 "col_vis": "Visibilidad de columna", 
 "search": "Buscar", 
@@ -145,4 +147,10 @@ LANG = {
     'name_length_exceeded': 'La longitud total del Prefijo, Nombre, Segundo Nombre y Apellido no puede exceder 127 caracteres.',
     'error': 'Error',
     'ok': 'OK',
+
+    // Calculator
+    'calculator': 'Calculadora',
+    'calc_recent_calculations': 'Cálculos recientes',
+    'calc_no_calculations_yet': 'Aún no hay cálculos',
+    'calc_clear_history': 'Borrar historial'
 };

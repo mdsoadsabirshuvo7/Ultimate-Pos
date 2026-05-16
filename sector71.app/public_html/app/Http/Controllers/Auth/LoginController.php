@@ -54,8 +54,6 @@ class LoginController extends Controller
 
     public function showLoginForm()
     {
-        request()->session()->forget('url.intended');
-
         return view('auth.login');
     }
 
@@ -124,23 +122,14 @@ class LoginController extends Controller
                     ['success' => 0, 'msg' => __('lang_v1.business_dont_have_crm_subscription')]
                 );
         }
-
-        $request->session()->forget('url.intended');
-
-        if ($request->expectsJson()) {
-            return null;
-        }
-
-        if ($user->user_type == 'user_customer') {
-            return redirect('contact/contact-dashboard');
-        }
-
-        return redirect('/home');
     }
 
     protected function redirectTo()
     {
         $user = \Auth::user();
+        if (! $user->can('dashboard.data') && $user->can('sell.create')) {
+            return '/pos/create';
+        }
 
         if ($user->user_type == 'user_customer') {
             return 'contact/contact-dashboard';

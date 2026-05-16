@@ -70,6 +70,8 @@ LANG = {
     'export_to_csv': 'Ekspor ke CSV',
     'export_to_excel': 'Expor ke Excel',
     'export_to_pdf': 'Expor ke PDF',
+    'portrait': 'Potret',
+    'landscape': 'Lanskap',
     'print': 'Cetak',
     'col_vis': 'Kolom tampak',
     'search': 'Cari',
@@ -145,4 +147,10 @@ LANG = {
     'name_length_exceeded': 'Total panjang Awalan, Nama Depan, Tengah & Belakang tidak boleh melebihi 127 karakter.',
     'error': 'Kesalahan',
     'ok': 'OK',
+
+    // Calculator
+    'calculator': 'Kalkulator',
+    'calc_recent_calculations': 'Perhitungan terbaru',
+    'calc_no_calculations_yet': 'Belum ada perhitungan',
+    'calc_clear_history': 'Hapus riwayat'
 };

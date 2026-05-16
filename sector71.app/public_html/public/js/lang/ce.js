@@ -69,6 +69,8 @@ LANG = {
 'export_to_csv': '导出为 CSV',
 'export_to_excel': '导出到 Excel',
 'export_to_pdf': '导出为 PDF',
+'portrait': '纵向',
+'landscape': '横向',
 'print': '打印',
 'col_vis': '列可见性',
 'search': '搜索',
@@ -164,4 +166,10 @@ LANG = {
     'name_length_exceeded': '前缀、名字、中间名和姓氏的总长度不能超过127个字符。',
     'error': '错误',
     'ok': '好的',
+
+    // Calculator
+    'calculator': '计算器',
+    'calc_recent_calculations': '最近的计算',
+    'calc_no_calculations_yet': '暂无计算',
+    'calc_clear_history': '清除历史记录'
 };

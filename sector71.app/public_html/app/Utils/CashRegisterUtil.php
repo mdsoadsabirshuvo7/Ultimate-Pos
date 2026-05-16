@@ -217,6 +217,41 @@ class CashRegisterUtil extends Util
     }
 
     /**
+     * Records an advance/due payment (is_advance=1) into the currently opened cash register.
+     * This is used when a customer pays their outstanding due from the POS screen.
+     * The payment is stored with transaction_type='advance_payment' so it can be
+     * distinguished from regular sell payments in the register details view.
+     *
+     * @param  \App\TransactionPayment  $transactionPayment
+     * @return bool
+     */
+    public function addAdvancePayment($transactionPayment)
+    {
+        $user_id = auth()->user()->id;
+        $register = CashRegister::where('user_id', $user_id)
+                                ->where('status', 'open')
+                                ->first();
+
+        if (empty($register)) {
+            return false;
+        }
+
+        $amount = $this->num_uf($transactionPayment->amount);
+        if ($amount != 0) {
+            $register->cash_register_transactions()->create([
+                'amount' => $amount,
+                'pay_method' => $transactionPayment->method,
+                'type' => 'credit',
+                'transaction_type' => 'advance_payment',
+                'transaction_id' => null,
+                'transaction_payment_id' => $transactionPayment->id,
+            ]);
+        }
+
+        return true;
+    }
+
+    /**
      * Retrieves details of given rigister id else currently opened register
      *
      * @param $register_id default null
@@ -300,6 +335,20 @@ class CashRegisterUtil extends Util
             DB::raw("SUM(IF(transaction_type='refund', IF(pay_method='custom_pay_5', amount, 0), 0)) as total_custom_pay_5_refund"),
             DB::raw("SUM(IF(transaction_type='refund', IF(pay_method='custom_pay_6', amount, 0), 0)) as total_custom_pay_6_refund"),
             DB::raw("SUM(IF(transaction_type='refund', IF(pay_method='custom_pay_7', amount, 0), 0)) as total_custom_pay_7_refund"),
+            // Advance/due payment collection totals (transaction_type='advance_payment')
+            DB::raw("SUM(IF(transaction_type='advance_payment', amount, 0)) as total_advance_payment"),
+            DB::raw("SUM(IF(pay_method='cash', IF(transaction_type='advance_payment', amount, 0), 0)) as total_cash_advance_payment"),
+            DB::raw("SUM(IF(pay_method='cheque', IF(transaction_type='advance_payment', amount, 0), 0)) as total_cheque_advance_payment"),
+            DB::raw("SUM(IF(pay_method='card', IF(transaction_type='advance_payment', amount, 0), 0)) as total_card_advance_payment"),
+            DB::raw("SUM(IF(pay_method='bank_transfer', IF(transaction_type='advance_payment', amount, 0), 0)) as total_bank_transfer_advance_payment"),
+            DB::raw("SUM(IF(pay_method='other', IF(transaction_type='advance_payment', amount, 0), 0)) as total_other_advance_payment"),
+            DB::raw("SUM(IF(pay_method='custom_pay_1', IF(transaction_type='advance_payment', amount, 0), 0)) as total_custom_pay_1_advance_payment"),
+            DB::raw("SUM(IF(pay_method='custom_pay_2', IF(transaction_type='advance_payment', amount, 0), 0)) as total_custom_pay_2_advance_payment"),
+            DB::raw("SUM(IF(pay_method='custom_pay_3', IF(transaction_type='advance_payment', amount, 0), 0)) as total_custom_pay_3_advance_payment"),
+            DB::raw("SUM(IF(pay_method='custom_pay_4', IF(transaction_type='advance_payment', amount, 0), 0)) as total_custom_pay_4_advance_payment"),
+            DB::raw("SUM(IF(pay_method='custom_pay_5', IF(transaction_type='advance_payment', amount, 0), 0)) as total_custom_pay_5_advance_payment"),
+            DB::raw("SUM(IF(pay_method='custom_pay_6', IF(transaction_type='advance_payment', amount, 0), 0)) as total_custom_pay_6_advance_payment"),
+            DB::raw("SUM(IF(pay_method='custom_pay_7', IF(transaction_type='advance_payment', amount, 0), 0)) as total_custom_pay_7_advance_payment"),
             DB::raw("SUM(IF(pay_method='cheque', 1, 0)) as total_cheques"),
             DB::raw("SUM(IF(pay_method='card', 1, 0)) as total_card_slips"),
             DB::raw("CONCAT(COALESCE(surname, ''), ' ', COALESCE(first_name, ''), ' ', COALESCE(last_name, '')) as user_name"),
@@ -308,6 +357,76 @@ class CashRegisterUtil extends Util
         )->first();
 
         return $register_details;
+    }
+
+    /**
+     * Calculates how much of the due/advance payments collected in this register session
+     * actually apply to sales that belong to this same register.
+     *
+     * Flow:
+     * 1. Get all sale transaction_ids from the transactions table by matching
+     *    created_by (register user) and created_at between register open/close time.
+     *    This catches ALL sales including credit sales that have no cash_register_transactions entry.
+     * 2. Get all advance payment parent IDs (transaction_payment_id) from this register's
+     *    cash_register_transactions (transaction_type='advance_payment')
+     * 3. Find child transaction_payments where parent_id IN (step 2) AND transaction_id IN (step 1)
+     * 4. Sum those child amounts — this is the portion of due collections that reduce this register's receivables
+     *
+     * @param  int|null  $register_id
+     * @return float
+     */
+    public function getDuePaymentsForCurrentRegisterSales($register_id = null)
+    {
+        // Determine the register
+        if (empty($register_id)) {
+            $user_id = auth()->user()->id;
+            $register = CashRegister::where('user_id', $user_id)
+                                    ->where('status', 'open')
+                                    ->first();
+        } else {
+            $register = CashRegister::find($register_id);
+        }
+
+        if (empty($register)) {
+            return 0;
+        }
+
+        $open_time = $register->created_at;
+        $close_time = ! empty($register->closed_at) ? $register->closed_at : \Carbon\Carbon::now()->toDateTimeString();
+
+        // Step 1: Get all sale transaction_ids for this register session from transactions table.
+        // This includes credit sales and partially paid sales that may not have
+        // any entry in cash_register_transactions.
+        $sale_transaction_ids = Transaction::where('created_by', $register->user_id)
+            ->whereBetween('created_at', [$open_time, $close_time])
+            ->where('type', 'sell')
+            ->where('status', 'final')
+            ->where('is_direct_sale', 0)
+            ->pluck('id')
+            ->toArray();
+
+        if (empty($sale_transaction_ids)) {
+            return 0;
+        }
+
+        // Step 2: Get all advance payment parent IDs from this register
+        $advance_payment_ids = CashRegisterTransaction::where('cash_register_id', $register->id)
+            ->where('transaction_type', 'advance_payment')
+            ->whereNotNull('transaction_payment_id')
+            ->pluck('transaction_payment_id')
+            ->toArray();
+
+        if (empty($advance_payment_ids)) {
+            return 0;
+        }
+
+        // Step 3 & 4: Sum child payments where parent is an advance from this register
+        // and the transaction_id is a sale from this register session
+        $amount = \App\TransactionPayment::whereIn('parent_id', $advance_payment_ids)
+            ->whereIn('transaction_id', $sale_transaction_ids)
+            ->sum('amount');
+
+        return $amount;
     }
 
     /**

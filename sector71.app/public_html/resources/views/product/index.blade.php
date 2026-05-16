@@ -374,6 +374,22 @@
                     __currency_convert_recursively($('#product_table'));
                 },
             });
+            // Convert loaded product images to base64 so they appear in the PDF.
+            product_table.buttons('.buttons-pdf').action(function(e, dt, button, config) {
+                if ($(dt.table().node()).hasClass('hide-footer')) config.footer = false;
+                window._pdfImageCache = window._pdfImageCache || {};
+                $('#product_table tbody img.product-thumbnail-small').each(function() {
+                    if (!this.complete || !this.naturalWidth || window._pdfImageCache[this.src]) return;
+                    try {
+                        var c = document.createElement('canvas');
+                        c.width = c.height = 50;
+                        c.getContext('2d').drawImage(this, 0, 0, 50, 50);
+                        window._pdfImageCache[this.src] = c.toDataURL('image/jpeg', 0.8);
+                    } catch (ex) {}
+                });
+                $.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, button, config);
+            });
+
             // Array to track the ids of the details displayed rows
             var detailRows = [];
 

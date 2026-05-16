@@ -95,7 +95,7 @@
                         <i class="fas fa-wrench"></i>
                         Advance Repair Module</a>
 
-                    <a href="https://ultimatefosters.com/docs/ultimate-fosters-shop/" target="_blank" class="btn btn-app" data-toggle="tooltip"
+                    <a href="{{ url('docs') }}" target="_blank" class="btn btn-app" data-toggle="tooltip"
                         title="Advance repair module demo" style="color:white !important; background-color: #2dce89">
                         <i class="fas fa-network-wired"></i>
                         Connector Module / API Documentation</a>

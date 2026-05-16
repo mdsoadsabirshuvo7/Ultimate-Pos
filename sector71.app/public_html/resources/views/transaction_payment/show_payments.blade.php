@@ -132,7 +132,11 @@
                 </div>
             @endif
 
-            @can('send_notification')
+            @php
+                $can_send_payment_received_notification = auth()->user()->can('send_payment_received_notification');
+                $can_send_payment_reminder_notification = auth()->user()->can('send_payment_reminder_notification');
+            @endphp
+            @if($can_send_payment_received_notification || $can_send_payment_reminder_notification)
                 @if($transaction->type == 'purchase')
                     <div class="row no-print">
                         <div class="col-md-12 text-right">
@@ -142,21 +146,25 @@
                     </div>
                     <br>
                 @endif
-                @if($transaction->type == 'sell' || $transaction->type == 'hms_booking')
+                @if($transaction->type == 'sell' || $transaction->type == 'hms_booking' || $transaction->type == 'gym_subscription')
                     <div class="row no-print">
                         <div class="col-md-12 text-right">
-                            <button type="button" class="tw-dw-btn tw-dw-btn-info tw-text-white tw-dw-btn-xs btn-modal" 
-                            data-href="{{action([\App\Http\Controllers\NotificationController::class, 'getTemplate'], ['transaction_id' => $transaction->id,'template_for' => 'payment_received'])}}" data-container=".view_modal"><i class="fa fa-envelope"></i> @lang('lang_v1.payment_received_notification')</button>
+                            @if($can_send_payment_received_notification)
+                                <button type="button" class="tw-dw-btn tw-dw-btn-info tw-text-white tw-dw-btn-xs btn-modal" 
+                                data-href="{{action([\App\Http\Controllers\NotificationController::class, 'getTemplate'], ['transaction_id' => $transaction->id,'template_for' => 'payment_received'])}}" data-container=".view_modal"><i class="fa fa-envelope"></i> @lang('lang_v1.payment_received_notification')</button>
+                            @endif
                           
                             @if($transaction->payment_status != 'paid')
                                 &nbsp;
-                                <button type="button" class="tw-dw-btn tw-dw-btn-warning tw-text-white tw-dw-btn-xs btn-modal" data-href="{{action([\App\Http\Controllers\NotificationController::class, 'getTemplate'], ['transaction_id' => $transaction->id,'template_for' => 'payment_reminder'])}}" data-container=".view_modal"><i class="fa fa-envelope"></i> @lang('lang_v1.send_payment_reminder')</button>
+                                @if($can_send_payment_reminder_notification)
+                                    <button type="button" class="tw-dw-btn tw-dw-btn-warning tw-text-white tw-dw-btn-xs btn-modal" data-href="{{action([\App\Http\Controllers\NotificationController::class, 'getTemplate'], ['transaction_id' => $transaction->id,'template_for' => 'payment_reminder'])}}" data-container=".view_modal"><i class="fa fa-envelope"></i> @lang('lang_v1.send_payment_reminder')</button>
+                                @endif
                             @endif
                         </div>
                     </div>
                     <br>
                 @endif
-            @endcan
+            @endif
             @if($transaction->payment_status != 'paid')
                 <div class="row">
                     <div class="col-md-12">

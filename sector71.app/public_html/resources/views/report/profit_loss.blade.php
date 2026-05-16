@@ -16,7 +16,7 @@
         </div>
 
         <div class="row no-print">
-            <div class="col-md-4 col-xs-12">
+            <div class="col-md-3 col-xs-12">
                 <div class="input-group">
                     <span class="input-group-addon bg-light-blue"><i class="fa fa-map-marker"></i></span>
                     <select class="form-control select2" id="profit_loss_location_filter">
@@ -26,34 +26,21 @@
                     </select>
                 </div>
             </div>
-        
-            <div class="col-md-4 col-xs-12">
-                <div class="form-group">
-                    <div class="input-group">
-                        <button type="button" class="tw-dw-btn tw-dw-btn-primary tw-text-white tw-dw-btn-sm" id="profit_loss_date_filter">
-                            <span>
-                                <i class="fa fa-calendar"></i> {{ __('messages.filter_by_date') }}
-                            </span>
-                            <i class="fa fa-caret-down"></i>
-                        </button>
-                    </div>
+
+            <div class="col-md-3 col-xs-12">
+                <div class="input-group">
+                    <button type="button" class="tw-dw-btn tw-dw-btn-primary tw-text-white tw-dw-btn-sm" id="profit_loss_date_filter">
+                        <span><i class="fa fa-calendar"></i> {{ __('messages.filter_by_date') }}</span>
+                        <i class="fa fa-caret-down"></i>
+                    </button>
                 </div>
             </div>
-            <div class="col-md-4 col-xs-12">
+
+            <div class="col-md-6 col-xs-12 tw-flex tw-items-center tw-justify-end tw-gap-2">
                 <div id="ai-analysis-container" class="ai-analysis-content"></div>
-            </div>
-        </div>
-        <div class="row">
-            <div id="pl_data_div">
-            </div>
-        </div>
-
-
-        <div class="row no-print">
-            <div class="col-sm-12 tw-mb-2">
-                <button class="tw-dw-btn tw-dw-btn-primary tw-text-white pull-right" aria-label="Print"
+                <button class="tw-dw-btn tw-dw-btn-primary tw-text-white tw-dw-btn-sm no-print" aria-label="Print"
                     onclick="window.print();">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                         class="icon icon-tabler icons-tabler-outline icon-tabler-printer">
                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -62,6 +49,10 @@
                         <path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" />
                     </svg> @lang('messages.print')
                 </button>
+            </div>
+        </div>
+        <div class="row tw-mt-4">
+            <div id="pl_data_div">
             </div>
         </div>
         <div class="row no-print">

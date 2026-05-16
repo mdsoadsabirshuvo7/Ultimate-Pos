@@ -2,7 +2,7 @@
   <div class="modal-content">
     <div class="modal-header mini_print">
       <button type="button" class="close no-print" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-      <h3 class="modal-title">@lang( 'cash_register.register_details' ) ( {{ \Carbon::createFromFormat('Y-m-d H:i:s', $register_details->open_time)->format('jS M, Y h:i A') }} -  {{\Carbon::createFromFormat('Y-m-d H:i:s', $close_time)->format('jS M, Y h:i A')}} )</h3>
+      <h3 class="modal-title">@lang( 'cash_register.register_details' ) ( {{ $register_details->open_time ? \Carbon::createFromFormat('Y-m-d H:i:s', $register_details->open_time)->format('jS M, Y h:i A') : '-' }} -  {{ $close_time ? \Carbon::createFromFormat('Y-m-d H:i:s', $close_time)->format('jS M, Y h:i A') : '-' }} )</h3>
     </div>
 
     <div class="modal-body">
@@ -33,10 +33,10 @@
                   <td class="text-center">{{$value ?? 0}}</td>
                   <td class="text-center">=</td>
                   <td class="text-left">
-                    @format_currency($key * $value)
+                    @format_currency($key * ($value ?? 0))
                   </td>
                 </tr>
-                @php $total += ((float) $key) * ((float) $value); @endphp
+                @php $total += ((float) $key) * ((float) ($value ?? 0)); @endphp
                 @endforeach
               </tbody>
               <tfoot>
