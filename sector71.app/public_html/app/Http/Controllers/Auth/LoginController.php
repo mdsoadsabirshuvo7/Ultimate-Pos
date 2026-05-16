@@ -123,7 +123,6 @@ class LoginController extends Controller
                     ['success' => 0, 'msg' => __('lang_v1.business_dont_have_crm_subscription')]
                 );
         }
-<<<<<<< HEAD
 
         $request->session()->forget('url.intended');
 
@@ -136,19 +135,14 @@ class LoginController extends Controller
         }
 
         return redirect('/home');
-=======
->>>>>>> v7-base
     }
 
     protected function redirectTo()
     {
         $user = \Auth::user();
-<<<<<<< HEAD
-=======
         if (! $user->can('dashboard.data') && $user->can('sell.create')) {
             return '/pos/create';
         }
->>>>>>> v7-base
 
         if ($user->user_type == 'user_customer') {
             return 'contact/contact-dashboard';
